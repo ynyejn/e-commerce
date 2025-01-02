@@ -282,7 +282,8 @@ sequenceDiagram
 ```
 </details>
 
-
+## 🖇️ ERD
+[PDF 파일 보기](erd.pdf)
 
 ## Getting Started
 
