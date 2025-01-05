@@ -251,11 +251,55 @@ sequenceDiagram
     ProductSystem->>Client: 4. 인기 상품 목록 반환
     deactivate ProductSystem
 ```
-    
+
 </details>
+
 
 ## 🖇️ ERD
 ![img.png](docs/erd.png)
+
+## 📝️ API 명세
+<details>
+<summary>잔액 충전 API</summary>
+<br>
+<img src="docs/api/chargebalance.png" alt="Order API Image" />
+</details>
+<details>
+<summary>잔액 조회 API</summary>
+<br>
+<img src="docs/api/balance.png" alt="Order API Image" />
+</details>
+<details>
+<summary>상품 조회 API</summary>
+<br>
+<img src="docs/api/product.png" alt="Order API Image" />
+</details>
+<details>
+<summary>주문/결제 API</summary>
+<br>
+<img src="docs/api/orderapi.png" alt="Order API Image" />
+</details>
+<details>
+<summary>결제 API</summary>
+<br>
+<img src="docs/api/payment.png" alt="Order API Image" />
+</details>
+<details>
+<summary>선착순 쿠폰 발급 API</summary>
+<br>
+<img src="docs/api/couponissue.png" alt="Order API Image" />
+</details>
+<details>
+<summary>보유 쿠폰 목록 조회 API</summary>
+<br>
+<img src="docs/api/coupon.png" alt="Order API Image" />
+</details>
+<details>
+<summary>인기 상품 조회 API</summary>
+<br>
+<img src="docs/api/popular.png" alt="Order API Image" />
+</details>
+<br><br>
 
 ## Getting Started
 
