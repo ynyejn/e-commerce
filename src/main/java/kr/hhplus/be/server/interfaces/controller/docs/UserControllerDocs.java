@@ -32,7 +32,7 @@ public interface UserControllerDocs {
                                             {
                                                 "userId": 1,
                                                 "name": "연예진",
-                                                "balance": 20000
+                                                "point": 20000
                                             }
                                             """
                             )
@@ -87,7 +87,7 @@ public interface UserControllerDocs {
                     )
             )
     })
-    ResponseEntity<UserResponse> chargeBalance(
+    ResponseEntity<UserResponse> chargePoint(
             @Parameter(description = "잔액을 충전할 사용자 ID", required = true) Long userId
     );
 
@@ -131,7 +131,7 @@ public interface UserControllerDocs {
                     )
             )
     })
-    ResponseEntity<UserResponse> getBalance(Long userId);
+    ResponseEntity<UserResponse> getPoint(Long userId);
 
 
     @Operation(summary = "사용자 쿠폰 목록 조회", description = "특정 사용자가 보유한 모든 쿠폰의 목록을 조회합니다. 사용 완료된 쿠폰을 포함한 모든 쿠폰이 조회됩니다.")

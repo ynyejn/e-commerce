@@ -19,8 +19,8 @@ public class UserController implements UserControllerDocs {
     /**
      * 사용자 잔액 충전 API
      */
-    @PutMapping("/{userId}/balance")
-    public ResponseEntity<UserResponse> chargeBalance(
+    @PutMapping("/{userId}/point")
+    public ResponseEntity<UserResponse> chargePoint(
             @PathVariable Long userId
     ) {
         UserResponse response = new UserResponse(userId, "연예진", 20000L);
@@ -30,8 +30,8 @@ public class UserController implements UserControllerDocs {
     /**
      * 사용자 잔액 조회 API
      */
-    @GetMapping("/{userId}/balance")
-    public ResponseEntity<UserResponse> getBalance(@PathVariable Long userId) {
+    @GetMapping("/{userId}/point")
+    public ResponseEntity<UserResponse> getPoint(@PathVariable Long userId) {
         UserResponse response = new UserResponse(userId, "연예진", 20000L);
 
         return ResponseEntity.ok(response);
