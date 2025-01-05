@@ -83,26 +83,26 @@ sequenceDiagram
     participant PaymentSystem as 결제
     participant DataSystem as 데이터플랫폼
 
-    Customer->>OrderSystem: 1. 주문 요청(userId, products, couponId)
+    Customer->>OrderSystem: 1. 주문 요청(userId, products)
     activate OrderSystem
-    Note over OrderSystem: 상품/재고/쿠폰 유효성 검증
+    Note over OrderSystem: 상품/재고 검증
 
-    alt 주문 유효성 검증 성공
-        OrderSystem->>PaymentSystem: 2. 결제 요청
+    alt 검증 성공
+        OrderSystem->>PaymentSystem: 2. 결제 요청(orderId, couponId)
         activate PaymentSystem
+        Note over PaymentSystem: 쿠폰/잔액 검증 및 처리
 
         alt 결제 성공
-            PaymentSystem->>OrderSystem: 3. 결제 성공 응답
-            OrderSystem->>Customer: 4. 주문 완료 알림
-            Note over OrderSystem,DataSystem: 비동기 데이터 처리
-            OrderSystem-->>DataSystem: 5. 주문/결제 데이터 저장(PAID)
+            PaymentSystem->>OrderSystem: 3a. 결제 성공
+            OrderSystem->>Customer: 4. 주문 완료
+            OrderSystem-->>DataSystem: 5. 주문/결제 데이터 저장
         else 결제 실패
-            PaymentSystem->>OrderSystem: 3. 결제 실패 응답
-            OrderSystem->>Customer: 4. 주문 실패 알림
+            PaymentSystem->>OrderSystem: 3b. 결제 실패
+            OrderSystem->>Customer: 4. 주문 실패
         end
         deactivate PaymentSystem
-    else 주문 유효성 검증 실패
-        OrderSystem->>Customer: 2. 주문 실패 알림(재고 부족 등)
+    else 검증 실패
+        OrderSystem->>Customer: 2. 주문 실패
     end
     deactivate OrderSystem
 ```
@@ -116,9 +116,8 @@ sequenceDiagram
     participant Customer as 클라이언트
     participant OrderSystem as 주문
     participant ProductSystem as 상품
-    participant CouponSystem as 쿠폰
 
-    Customer->>OrderSystem: 1. 주문 생성 요청(userId, products, couponId)
+    Customer->>OrderSystem: 1. 주문 생성 요청(userId, products)
     activate OrderSystem
 
     OrderSystem->>ProductSystem: 2. 상품 정보/재고 확인
@@ -127,19 +126,10 @@ sequenceDiagram
     deactivate ProductSystem
 
     alt 재고 충분
-        OrderSystem->>CouponSystem: 4. 쿠폰 유효성 검증
-        activate CouponSystem
-        alt 쿠폰 유효
-            CouponSystem->>OrderSystem: 5. 할인 금액 계산 완료
-            deactivate CouponSystem
-            OrderSystem->>ProductSystem: 6. 재고 할당
-            activate ProductSystem
-            deactivate ProductSystem
-            OrderSystem->>Customer: 7. 주문 생성 완료(CREATED, 할인적용가)
-        else 쿠폰 무효
-            CouponSystem->>OrderSystem: 5. 쿠폰 검증 실패
-            OrderSystem->>Customer: 주문 생성 실패(쿠폰 오류)
-        end
+        OrderSystem->>ProductSystem: 4. 재고 할당
+        activate ProductSystem
+        deactivate ProductSystem
+        OrderSystem->>Customer: 5. 주문 생성 완료(CREATED)
     else 재고 부족
         OrderSystem->>Customer: 주문 생성 실패(재고 부족)
     end
@@ -153,27 +143,39 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant OrderSystem as 주문
+    participant Client as 클라이언트
     participant PaymentSystem as 결제
+    participant OrderSystem as 주문
+    participant CouponSystem as 쿠폰
     participant DataSystem as 데이터플랫폼
 
-    OrderSystem->>PaymentSystem: 1. 결제 요청(orderId)
+    Client->>PaymentSystem: 1. 결제 요청(orderId, couponIssueId)
     activate PaymentSystem
-    Note over PaymentSystem: 사용자 잔액 확인
 
-    alt 잔액 충분
-        Note over PaymentSystem: 잔액 차감 처리
-        PaymentSystem->>OrderSystem: 2a. 결제 성공
-        activate OrderSystem
-        Note over OrderSystem,DataSystem: 비동기 데이터 처리
-        OrderSystem-->>DataSystem: 3. 주문 데이터 저장(PAID)
-        deactivate OrderSystem
-    else 잔액 부족
-        PaymentSystem->>OrderSystem: 2b. 결제 실패
-        activate OrderSystem
-        OrderSystem-->>DataSystem: 3. 주문 상태 업데이트(PAYMENT_FAILED)
-        deactivate OrderSystem
+    PaymentSystem->>CouponSystem: 2. 쿠폰 검증 요청
+    activate CouponSystem
+
+    alt 쿠폰 유효
+        CouponSystem->>PaymentSystem: 3a. 할인 금액 반환
+        Note over PaymentSystem: 사용자 잔액 확인
+
+        alt 잔액 충분
+            Note over PaymentSystem: 잔액 차감 처리
+            PaymentSystem->>OrderSystem: 4. 주문 상태 업데이트 요청
+            activate OrderSystem
+            OrderSystem->>PaymentSystem: 5. 업데이트 완료
+            deactivate OrderSystem
+            Note over PaymentSystem,DataSystem: 비동기 데이터 처리
+            PaymentSystem-->>DataSystem: 6. 주문 데이터 저장(PAID)
+            PaymentSystem->>Client: 7. 결제 성공 응답
+        else 잔액 부족
+            PaymentSystem->>Client: 4. 결제 실패 응답
+        end
+    else 쿠폰 무효
+        CouponSystem->>PaymentSystem: 3b. 쿠폰 검증 실패
+        PaymentSystem->>Client: 4. 쿠폰 오류 응답
     end
+    deactivate CouponSystem
     deactivate PaymentSystem
 ```
 
@@ -235,26 +237,23 @@ sequenceDiagram
 sequenceDiagram
     participant Client as 클라이언트
     participant ProductSystem as 상품
-    participant BatchSystem as 배치
     participant OrderSystem as 주문
 
-    Note over BatchSystem,OrderSystem: 매일 새벽 3시 배치 실행
-    BatchSystem->>OrderSystem: 1. 최근 3일 주문 데이터 조회
-    activate BatchSystem
-    OrderSystem->>BatchSystem: 2. 주문 데이터 반환
-    Note over BatchSystem: 상위 5개 상품 집계
-    BatchSystem->>ProductSystem: 3. 인기 상품 데이터 저장
-    deactivate BatchSystem
-
-    Note right of Client: API 호출 시점
-    Client->>ProductSystem: 4. 인기 상품 목록 요청
+    Client->>ProductSystem: 1. 인기 상품 목록 요청
     activate ProductSystem
-    Note over ProductSystem: 저장된 인기 상품<br/>데이터 조회
-    ProductSystem->>Client: 5. 인기 상품 목록 반환
+
+    ProductSystem->>OrderSystem: 2. 최근 3일 주문 데이터 집계 요청
+    activate OrderSystem
+    Note over OrderSystem: 상품별 판매량 집계
+    OrderSystem->>ProductSystem: 3. 상위 5개 상품 데이터 반환
+    deactivate OrderSystem
+
+    ProductSystem->>Client: 4. 인기 상품 목록 반환
     deactivate ProductSystem
 ```
-    
+
 </details>
+
 
 ## 🖇️ ERD
 ![img.png](docs/erd.png)
