@@ -2,14 +2,14 @@ package kr.hhplus.be.server.interfaces.controller;
 
 
 import kr.hhplus.be.server.interfaces.controller.docs.ProductControllerDocs;
+import kr.hhplus.be.server.interfaces.dto.response.PageResultResponse;
 import kr.hhplus.be.server.interfaces.dto.response.PopularProductResponse;
 import kr.hhplus.be.server.interfaces.dto.response.ProductResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -32,6 +32,16 @@ public class ProductController implements ProductControllerDocs {
         );
 
         return ResponseEntity.ok(product);
+    }
+    /**
+     * 상품 목록 조회 API
+     */
+    @GetMapping
+    public PageResultResponse<List<ProductResponse>> getAllProducts(
+            Pageable pageable
+    ) {
+        Page<ProductResponse> productPage = Page.empty(pageable);
+        return PageResultResponse.of(productPage);
     }
 
     /**
