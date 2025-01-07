@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.domain.coupon.entity;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.domain.constant.CouponStatus;
 import kr.hhplus.be.server.domain.constant.DiscountType;
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.support.entity.BaseEntity;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static kr.hhplus.be.server.domain.constant.CouponStatus.*;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -75,5 +77,15 @@ public class CouponIssue extends BaseEntity {
 
     public void use(Order order) {
         this.order = order;
+    }
+
+    public String getStatus() {
+        if (order != null) {
+            return USED.getDescription();
+        }
+        if (expiredAt.isBefore(LocalDateTime.now())) {
+            return EXPIRED.getDescription();
+        }
+        return UNUSED.getDescription();
     }
 }
