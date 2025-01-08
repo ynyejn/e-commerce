@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
+import static kr.hhplus.be.server.domain.constant.CouponStatus.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.BDDAssertions.within;
@@ -103,6 +104,24 @@ class CouponIssueTest {
                 .extracting("apiErrorCode")
                 .isEqualTo(ApiErrorCode.INVALID_REQUEST);
     }
+    @Test
+    void 쿠폰상태_조회시_상황에_따라_적절한_상태가_반환된다() {
+        // given
+        CouponIssue unusedCoupon = createCouponIssue();
+        ReflectionTestUtils.setField(unusedCoupon, "expiredAt", LocalDateTime.now().plusDays(1));
+
+        CouponIssue expiredCoupon = createCouponIssue();
+        ReflectionTestUtils.setField(expiredCoupon, "expiredAt", LocalDateTime.now().minusDays(1));
+
+        CouponIssue usedCoupon = createCouponIssue();
+        usedCoupon.use(mock(Order.class));
+
+        // when & then
+        assertThat(unusedCoupon.getStatus()).isEqualTo(UNUSED.getDescription());
+        assertThat(expiredCoupon.getStatus()).isEqualTo(EXPIRED.getDescription());
+        assertThat(usedCoupon.getStatus()).isEqualTo(USED.getDescription());
+    }
+
 
     private CouponIssue createCouponIssue() {
         User user = User.create("테스트유저");
