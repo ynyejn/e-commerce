@@ -1,8 +1,9 @@
-package kr.hhplus.be.server.domain.coupon.service;
+package kr.hhplus.be.server.domain.service;
 
 import kr.hhplus.be.server.domain.coupon.dto.command.CouponIssueCommand;
 import kr.hhplus.be.server.domain.coupon.repository.ICouponIssueRepository;
 import kr.hhplus.be.server.domain.coupon.repository.ICouponRepository;
+import kr.hhplus.be.server.domain.coupon.service.CouponService;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.repository.IUserRepository;
 import kr.hhplus.be.server.support.exception.ApiException;
@@ -16,7 +17,6 @@ import java.util.Optional;
 
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

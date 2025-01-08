@@ -1,13 +1,12 @@
-package kr.hhplus.be.server.interfaces.product.dto.response;
+package kr.hhplus.be.server.domain.product.dto.info;
 
 import java.math.BigDecimal;
 
-public record PopularProductResponse(
+public record PopularProductInfo(
         Long rank,
         Long productId,
         String name,
         BigDecimal price,
-        int quantity
+        Long soldQuantity
 ) {
 }
-

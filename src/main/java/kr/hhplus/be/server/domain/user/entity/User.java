@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
-import static kr.hhplus.be.server.support.exception.ApiErrorCode.CONFLICT;
-import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.*;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -68,5 +67,13 @@ public class User extends BaseEntity {
             throw new ApiException(CONFLICT);
         }
         coupon.issueCoupon();   // 쿠폰 상태가 발급 가능한지 확인 후 발급
+    }
+
+
+    public void pay(BigDecimal amount) {
+        if (this.point == null) {
+            this.point = Point.create(this);
+        }
+        this.point.use(amount);
     }
 }
