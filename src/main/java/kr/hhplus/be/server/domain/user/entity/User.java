@@ -8,6 +8,7 @@ import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +20,15 @@ import static lombok.AccessLevel.PROTECTED;
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 public class User extends BaseEntity {
-    @Id @GeneratedValue(strategy = IDENTITY)
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     @Column(name = "name", nullable = false)
     private String name;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
+    private Point point;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<CouponIssue> coupons = new ArrayList<>();
@@ -43,4 +48,11 @@ public class User extends BaseEntity {
                 .orElseThrow(() -> new ApiException(NOT_FOUND));
     }
 
+    public Point chargePoint(BigDecimal amount) {
+        if (this.point == null) {
+            this.point = Point.create(this);
+        }
+        return this.point.charge(amount);
+
+    }
 }

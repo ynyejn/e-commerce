@@ -20,4 +20,8 @@ public class UserRepositoryImpl implements IUserRepository {
         return userJpaRepository.findById(aLong);
     }
 
+    @Override
+    public User save(User user) {
+        return userJpaRepository.save(user);
+    }
 }
