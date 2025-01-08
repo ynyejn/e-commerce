@@ -51,6 +51,9 @@ public class OrderService {
     private OrderItem createOrderItem(OrderCreateCommand.OrderItemCommand command) {
         Product product = productRepository.findById(command.productId())
                 .orElseThrow(() -> new ApiException(NOT_FOUND));
+        if (product.getProductStock() == null) {
+            throw new ApiException(NOT_FOUND);
+        }
         ProductStock productStock = productStockRepository.findByIdWithLock(product.getProductStock().getId())
                 .orElseThrow(() -> new ApiException(NOT_FOUND));
 
