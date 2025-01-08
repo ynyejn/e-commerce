@@ -10,6 +10,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.CONFLICT;
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -19,7 +20,7 @@ class UserTest {
     void 발급된_쿠폰을_찾으면_해당_쿠폰이_반환된다() {
         // given
         User user = User.create("테스트유저");
-        Coupon coupon = Coupon.create("테스트쿠폰", DiscountType.FIXED, null, null, null, null, 0);
+        Coupon coupon = Coupon.create("테스트쿠폰", DiscountType.FIXED, null, null, null, null, 0, 0);
         CouponIssue couponIssue = CouponIssue.create(user, coupon);
 
         ReflectionTestUtils.setField(coupon, "id", 1L);
@@ -43,5 +44,23 @@ class UserTest {
                 .isInstanceOf(ApiException.class)
                 .extracting("apiErrorCode")
                 .isEqualTo(NOT_FOUND);
+    }
+
+    @Test
+    void 쿠폰_발급시_이미_발급된_쿠폰이면_CONFLICT_예외가_발생한다() {
+        // given
+        User user = User.create("테스트유저");
+        Coupon coupon = Coupon.create("테스트쿠폰", DiscountType.FIXED, null, null, null, null, 0, 0);
+        CouponIssue couponIssue = CouponIssue.create(user, coupon);
+
+        ReflectionTestUtils.setField(coupon, "id", 1L);
+        ReflectionTestUtils.setField(user, "coupons", List.of(couponIssue));
+
+        // when & then
+        assertThatThrownBy(() -> user.issueCoupon(coupon))
+                .isInstanceOf(ApiException.class)
+                .extracting("apiErrorCode")
+                .isEqualTo(CONFLICT);
+
     }
 }

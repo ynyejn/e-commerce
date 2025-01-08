@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.coupon.entity;
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.constant.DiscountType;
 import kr.hhplus.be.server.domain.support.entity.BaseEntity;
+import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.INSUFFICIENT_COUPON;
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.INVALID_REQUEST;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -41,11 +44,19 @@ public class Coupon extends BaseEntity {
     private LocalDateTime issueEndAt;
 
     @Column(name = "validity_period")
-    private int validityPeriod;
+    private Integer validityPeriod;
+
+    @Column(name = "total_issue_quantity")
+    private Integer totalIssueQuantity;
+
+    @Column(name = "issued_quantity", nullable = false)
+    private Integer issuedQuantity = 0;
+
+
 
     private Coupon(String name, DiscountType discountType, BigDecimal discountValue,
                    BigDecimal minimumOrderAmount, LocalDateTime issueStartAt,
-                   LocalDateTime issueEndAt, int validityPeriod) {
+                   LocalDateTime issueEndAt, int validityPeriod, Integer totalIssueQuantity) {
         this.name = name;
         this.discountType = discountType;
         this.discountValue = discountValue;
@@ -53,13 +64,25 @@ public class Coupon extends BaseEntity {
         this.issueStartAt = issueStartAt;
         this.issueEndAt = issueEndAt;
         this.validityPeriod = validityPeriod;
+        this.totalIssueQuantity = totalIssueQuantity;
     }
 
     public static Coupon create(String name, DiscountType discountType, BigDecimal discountValue,
                                 BigDecimal minimumOrderAmount, LocalDateTime issueStartAt,
-                                LocalDateTime issueEndAt, int validityPeriod) {
+                                LocalDateTime issueEndAt, int validityPeriod, Integer totalIssueQuantity) {
         return new Coupon(name, discountType, discountValue,
-                minimumOrderAmount, issueStartAt, issueEndAt, validityPeriod);
+                minimumOrderAmount, issueStartAt, issueEndAt, validityPeriod, totalIssueQuantity);
     }
 
+
+    public void issueCoupon() {
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isBefore(issueStartAt) || now.isAfter(issueEndAt)) {
+            throw new ApiException(INVALID_REQUEST);
+        }
+        if (totalIssueQuantity != null && issuedQuantity >= totalIssueQuantity) {
+            throw new ApiException(INSUFFICIENT_COUPON);
+        }
+        this.issuedQuantity++;
+    }
 }
