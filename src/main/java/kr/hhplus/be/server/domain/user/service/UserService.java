@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.domain.user.service;
 
+import kr.hhplus.be.server.domain.coupon.dto.info.CouponInfo;
 import kr.hhplus.be.server.domain.user.dto.command.PointChargeCommand;
 import kr.hhplus.be.server.domain.user.dto.info.PointInfo;
 import kr.hhplus.be.server.domain.user.entity.Point;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 
@@ -24,7 +27,6 @@ import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 public class UserService {
     private final IUserRepository userRepository;
     private final IPointRepository pointRepository;
-    private final IPointHistoryRepository pointHistoryRepository;
 
     @Transactional
     public PointInfo chargePoint(PointChargeCommand command) {
@@ -37,10 +39,21 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public PointInfo getPoint(Long userId) {
-        return userRepository.findById(userId)
-                .map(user -> Optional.ofNullable(user.getPoint())
-                        .map(PointInfo::from)
-                        .orElseThrow(() -> new ApiException(ApiErrorCode.NOT_FOUND)))
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException(NOT_FOUND));
+
+        return Optional.ofNullable(user.getPoint())
+                .map(PointInfo::from)
+                .orElseThrow(() -> new ApiException(NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public List<CouponInfo> getCoupons(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException(NOT_FOUND));
+
+        return user.getCoupons().stream().
+                map(CouponInfo::from).
+                collect(Collectors.toList());
     }
 }
