@@ -55,4 +55,13 @@ public class Point extends BaseEntity {
         return this;
     }
 
+    public Point use(BigDecimal amount) {
+        if (this.point.compareTo(amount) < 0) {
+            throw new ApiException(ApiErrorCode.INVALID_REQUEST);
+        }
+
+        this.point = this.point.subtract(amount);
+        this.histories.add(PointHistory.create(this, amount.negate()));
+        return this;
+    }
 }

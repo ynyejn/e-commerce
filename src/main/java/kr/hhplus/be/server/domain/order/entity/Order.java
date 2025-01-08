@@ -6,6 +6,7 @@ import kr.hhplus.be.server.domain.coupon.entity.Coupon;
 import kr.hhplus.be.server.domain.support.entity.BaseEntity;
 import kr.hhplus.be.server.domain.coupon.entity.CouponIssue;
 import kr.hhplus.be.server.domain.user.entity.User;
+import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,11 +16,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static kr.hhplus.be.server.domain.constant.OrderStatus.PENDING;
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.INVALID_REQUEST;
 
 @Entity
 @Getter
@@ -63,6 +66,9 @@ public class Order extends BaseEntity {
     private BigDecimal paymentAmount;
 
     @OneToMany(mappedBy = "order", fetch = LAZY, cascade = CascadeType.ALL)
+    private List<Payment> payments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "order", fetch = LAZY, cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 
 
@@ -74,6 +80,7 @@ public class Order extends BaseEntity {
         for (OrderItem orderItem : orderItems) {
             addOrderItem(orderItem);
         }
+        this.itemAmount = calculateItemAmounts();
         this.discountAmount = calculateDiscountAmount(couponIssue);
         this.shippingAmount = calculateShippingAmount();
         this.totalAmount = this.itemAmount.add(this.shippingAmount);
@@ -101,11 +108,10 @@ public class Order extends BaseEntity {
     private void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
-        calculateItemAmounts();
     }
 
-    private void calculateItemAmounts() {
-        this.itemAmount = orderItems.stream()
+    private BigDecimal calculateItemAmounts() {
+        return orderItems.stream()
                 .map(item -> item.getOrderPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
@@ -123,5 +129,34 @@ public class Order extends BaseEntity {
             return BigDecimal.ZERO;
         }
         return couponIssue.calculateDiscountAmount(this.itemAmount);
+    }
+
+    public Payment pay() {
+        if (this.status != OrderStatus.PENDING) {
+            throw new ApiException(INVALID_REQUEST);
+        }
+        this.status = OrderStatus.PAID;
+        Payment payment = Payment.create(this, this.paymentAmount);
+        addPayment(payment);
+        return payment;
+    }
+
+    private void addPayment(Payment payment) {
+        this.payments.add(payment);
+        payment.setOrder(this);
+    }
+
+    public int getTotalQuantity() {
+        return orderItems.stream()
+                .mapToInt(OrderItem::getQuantity)
+                .sum();
+    }
+
+    public LocalDateTime getPaidAt() {
+        return payments.stream()
+                .map(Payment::getCreatedAt)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 }

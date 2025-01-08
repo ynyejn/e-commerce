@@ -69,4 +69,37 @@ class PointTest {
                 .extracting("amount")
                 .isEqualTo(chargeAmount);
     }
+
+    @Test
+    void 포인트_사용시_잔액이_부족하면_INVALID_REQUEST_예외가_발생한다() {
+        // given
+        Point point = Point.create(User.create("테스트유저"));
+        point.charge(new BigDecimal("10000"));
+        BigDecimal useAmount = new BigDecimal("20000");
+
+        // when & then
+        assertThatThrownBy(() -> point.use(useAmount))
+                .isInstanceOf(ApiException.class)
+                .extracting("apiErrorCode")
+                .isEqualTo(ApiErrorCode.INVALID_REQUEST);
+    }
+
+    @Test
+    void 포인트_사용시_정상적으로_사용되고_이력이_생성된다() {
+        // given
+        Point point = Point.create(User.create("테스트유저"));
+        point.charge(new BigDecimal("10000"));
+        BigDecimal useAmount = new BigDecimal("5000");
+
+        // when
+        point.use(useAmount);
+
+        // then
+        assertThat(point.getPoint()).isEqualTo(new BigDecimal("5000"));
+        assertThat(point.getHistories())
+                .hasSize(2)
+                .element(1)
+                .extracting("amount")
+                .isEqualTo(useAmount.negate());
+    }
 }

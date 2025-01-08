@@ -1,19 +1,21 @@
 package kr.hhplus.be.server.domain.entity;
 
+import kr.hhplus.be.server.domain.constant.OrderStatus;
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.order.entity.OrderItem;
 import kr.hhplus.be.server.domain.product.entity.Product;
 import kr.hhplus.be.server.domain.user.entity.User;
+import kr.hhplus.be.server.support.exception.ApiErrorCode;
+import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 class OrderTest {
-
-
 
     @Test
     void 상품금액이_배송비_무료기준_미만이면_배송비가_추가된다() {
@@ -63,6 +65,35 @@ class OrderTest {
         assertThat(order.getItemAmount()).isEqualTo(BigDecimal.valueOf(40000));
         assertThat(order.getShippingAmount()).isEqualTo(BigDecimal.ZERO);
         assertThat(order.getTotalAmount()).isEqualTo(BigDecimal.valueOf(40000));
+    }
+
+    @Test
+    void 주문이_결제대기_상태가_아니면_INVALID_REQUEST_예외가_발생한다() {
+        // given
+        User user = createUser();
+        List<OrderItem> orderItems = createOrderItems();
+        Order order = Order.create(user, orderItems);
+        order.pay();
+
+        // when & then
+        assertThatThrownBy(order::pay)
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("apiErrorCode", ApiErrorCode.INVALID_REQUEST);
+    }
+
+    @Test
+    void 주문이_결제되면_결제정보가_추가되고_주문의_상태가_결제_완료로_변경된다() {
+        // given
+        User user = createUser();
+        List<OrderItem> orderItems = createOrderItems();
+        Order order = Order.create(user, orderItems);
+
+        // when
+        order.pay();
+
+        // then
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);
+        assertThat(order.getPayments()).hasSize(1);
     }
 
     private User createUser() {

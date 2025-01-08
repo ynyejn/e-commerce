@@ -2,6 +2,7 @@ package kr.hhplus.be.server.domain.order.service;
 
 import kr.hhplus.be.server.domain.coupon.entity.CouponIssue;
 import kr.hhplus.be.server.domain.order.dto.command.OrderCreateCommand;
+import kr.hhplus.be.server.domain.order.dto.info.OrderInfo;
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.order.entity.OrderItem;
 import kr.hhplus.be.server.domain.order.repository.IOrderRepository;
@@ -34,7 +35,7 @@ public class OrderService {
     private final IProductStockHistoryRepository productStockHistoryRepository;
 
     @Transactional
-    public void order(OrderCreateCommand command) {
+    public OrderInfo order(OrderCreateCommand command) {
         User user = userRepository.findById(command.userId())
                 .orElseThrow(() -> new ApiException(NOT_FOUND));
 
@@ -46,6 +47,8 @@ public class OrderService {
 
         Order order = Order.create(user, orderItems, couponIssue);
         orderRepository.save(order);
+
+        return OrderInfo.from(order);
     }
 
     private OrderItem createOrderItem(OrderCreateCommand.OrderItemCommand command) {
