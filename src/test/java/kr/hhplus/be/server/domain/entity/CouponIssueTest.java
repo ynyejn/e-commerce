@@ -43,8 +43,7 @@ class CouponIssueTest {
     void 쿠폰검증시_이미_사용된_쿠폰이면_INVALID_REQUEST_예외가_발생한다() {
         // given
         CouponIssue couponIssue = createCouponIssue();
-        Order order = mock(Order.class);
-        couponIssue.use(order);
+        ReflectionTestUtils.setField(couponIssue, "usedAt", LocalDateTime.now());
 
         // when & then
         assertThatThrownBy(() -> couponIssue.validate())
@@ -114,7 +113,7 @@ class CouponIssueTest {
         ReflectionTestUtils.setField(expiredCoupon, "expiredAt", LocalDateTime.now().minusDays(1));
 
         CouponIssue usedCoupon = createCouponIssue();
-        usedCoupon.use(mock(Order.class));
+        usedCoupon.use();
 
         // when & then
         assertThat(unusedCoupon.getStatus()).isEqualTo(UNUSED.getDescription());

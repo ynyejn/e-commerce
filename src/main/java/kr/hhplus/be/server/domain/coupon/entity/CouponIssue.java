@@ -1,9 +1,7 @@
 package kr.hhplus.be.server.domain.coupon.entity;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.domain.constant.CouponStatus;
 import kr.hhplus.be.server.domain.constant.DiscountType;
-import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.support.entity.BaseEntity;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.support.exception.ApiErrorCode;
@@ -35,9 +33,8 @@ public class CouponIssue extends BaseEntity {
     @JoinColumn(name = "coupon_id", nullable = false)
     private Coupon coupon;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Order order;
+    @Column(name = "used_at")
+    private LocalDateTime usedAt;
 
     @Column(name = "expired_at", nullable = false)
     private LocalDateTime expiredAt;
@@ -54,12 +51,13 @@ public class CouponIssue extends BaseEntity {
     }
 
     public void validate() {
-        if (order != null) {
+        if (usedAt != null) {
             throw new ApiException(ApiErrorCode.INVALID_REQUEST);
         }
         if (expiredAt.isBefore(LocalDateTime.now())) {
             throw new ApiException(ApiErrorCode.INVALID_REQUEST);
         }
+
     }
 
     public BigDecimal calculateDiscountAmount(BigDecimal orderAmount) {
@@ -75,12 +73,12 @@ public class CouponIssue extends BaseEntity {
         }
     }
 
-    public void use(Order order) {
-        this.order = order;
+    public void use() {
+        this.usedAt = LocalDateTime.now();
     }
 
     public String getStatus() {
-        if (order != null) {
+        if (usedAt != null) {
             return USED.getDescription();
         }
         if (expiredAt.isBefore(LocalDateTime.now())) {

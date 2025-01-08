@@ -25,7 +25,7 @@ public record CouponInfo(
                 couponIssue.getCoupon().getDiscountType().name(),
                 couponIssue.getCoupon().getDiscountValue(),
                 couponIssue.getExpiredAt(),
-                couponIssue.getOrder() != null ? couponIssue.getOrder().getCreatedAt() : null,
+                couponIssue.getUsedAt() != null ? couponIssue.getUsedAt() : null,
                 couponIssue.getCreatedAt()
         );
     }

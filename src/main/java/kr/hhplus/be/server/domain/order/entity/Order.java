@@ -36,9 +36,9 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(fetch = LAZY)
-    @JoinColumn(name = "coupon_issue_id")
-    private CouponIssue couponIssue;
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "coupon_id")
+    private Coupon coupon;
 
     @Column(name = "order_no", nullable = false, unique = true, length = 18)
     private String orderNo;
@@ -78,10 +78,10 @@ public class Order extends BaseEntity {
         this.shippingAmount = calculateShippingAmount();
         this.totalAmount = this.itemAmount.add(this.shippingAmount);
         this.paymentAmount = this.totalAmount.subtract(this.discountAmount);
-        this.couponIssue = couponIssue;
 
         if (couponIssue != null) {
-            couponIssue.use(this);
+            this.coupon = couponIssue.getCoupon();
+            couponIssue.use();
         }
     }
 
