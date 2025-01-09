@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.interfaces.order.controller;
 
+import kr.hhplus.be.server.domain.order.dto.info.OrderInfo;
+import kr.hhplus.be.server.domain.order.service.PaymentService;
 import kr.hhplus.be.server.interfaces.order.controller.docs.PaymentControllerDocs;
 import kr.hhplus.be.server.interfaces.order.dto.request.CreatePaymentRequest;
 import kr.hhplus.be.server.interfaces.order.dto.response.OrderResponse;
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 @RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
 public class PaymentController implements PaymentControllerDocs {
+    private final PaymentService paymentService;
 
     /**
      * 결제 API
@@ -24,14 +27,7 @@ public class PaymentController implements PaymentControllerDocs {
      */
     @PostMapping()
     public ResponseEntity<OrderResponse> createPayment(@RequestBody CreatePaymentRequest request) {
-        OrderResponse response = new OrderResponse(
-                request.orderId(),
-                "2025010514001345332",
-                "결제완료",
-                BigDecimal.valueOf(10000),
-                10,
-                LocalDateTime.now());
-
-        return ResponseEntity.ok(response);
+        OrderInfo orderInfo = paymentService.pay(request.toCommand());
+        return ResponseEntity.ok(OrderResponse.from(orderInfo));
     }
 }

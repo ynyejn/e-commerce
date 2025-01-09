@@ -1,7 +1,11 @@
 package kr.hhplus.be.server.interfaces.user.controller;
 
+import kr.hhplus.be.server.domain.coupon.dto.info.CouponInfo;
+import kr.hhplus.be.server.domain.user.dto.info.PointInfo;
+import kr.hhplus.be.server.domain.user.service.UserService;
 import kr.hhplus.be.server.interfaces.user.controller.docs.UserControllerDocs;
 import kr.hhplus.be.server.interfaces.coupon.dto.response.CouponResponse;
+import kr.hhplus.be.server.interfaces.user.dto.request.PointChargeRequest;
 import kr.hhplus.be.server.interfaces.user.dto.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,16 +19,18 @@ import java.util.List;
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController implements UserControllerDocs {
+    private final UserService userService;
 
     /**
      * 사용자 잔액 충전 API
      */
     @PutMapping("/{userId}/point")
     public ResponseEntity<UserResponse> chargePoint(
-            @PathVariable Long userId
+            @PathVariable Long userId,
+            @RequestBody PointChargeRequest request
     ) {
-        UserResponse response = new UserResponse(userId, "연예진", 20000L);
-        return ResponseEntity.ok(response);
+        PointInfo response = userService.chargePoint(request.toCommand(userId));
+        return ResponseEntity.ok(UserResponse.from(response));
     }
 
     /**
@@ -32,8 +38,7 @@ public class UserController implements UserControllerDocs {
      */
     @GetMapping("/{userId}/point")
     public ResponseEntity<UserResponse> getPoint(@PathVariable Long userId) {
-        UserResponse response = new UserResponse(userId, "연예진", 20000L);
-
+        UserResponse response = UserResponse.from(userService.getPoint(userId));
         return ResponseEntity.ok(response);
     }
 
@@ -42,17 +47,11 @@ public class UserController implements UserControllerDocs {
      */
     @GetMapping("/{userId}/coupons")
     public ResponseEntity<List<CouponResponse>> getUserCoupons(@PathVariable Long userId) {
-        CouponResponse coupon1 = new CouponResponse(
-                1L,
-                "FS3DE15DW0",
-                "USED",
-                "PERCENT",
-                BigDecimal.valueOf(10),
-                LocalDateTime.parse("2025-01-05 14:00:13"),
-                LocalDateTime.parse("2025-01-05 14:00:13"),
-                LocalDateTime.now());
+        List<CouponInfo> couponInfos = userService.getCoupons(userId);
 
-        return ResponseEntity.ok(List.of(coupon1));
+        return ResponseEntity.ok(couponInfos.stream()
+                .map(CouponResponse::from)
+                .toList());
     }
 
 

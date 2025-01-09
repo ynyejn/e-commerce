@@ -8,10 +8,10 @@ public record PopularProductQuery(
     Long productId,
     String name,
     BigDecimal price,
-    Long soldQuantity
+    int totalQuantity
 ) {
 
     public PopularProductInfo toInfo(long rank) {
-        return new PopularProductInfo(rank, productId, name, price, soldQuantity);
+        return new PopularProductInfo(rank, productId, name, price, totalQuantity);
     }
 }

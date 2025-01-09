@@ -7,6 +7,6 @@ public record PopularProductInfo(
         Long productId,
         String name,
         BigDecimal price,
-        Long soldQuantity
+        int totalQuantity
 ) {
 }

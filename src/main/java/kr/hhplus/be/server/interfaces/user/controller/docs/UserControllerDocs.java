@@ -10,9 +10,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.hhplus.be.server.interfaces.coupon.dto.response.CouponResponse;
+import kr.hhplus.be.server.interfaces.user.dto.request.PointChargeRequest;
 import kr.hhplus.be.server.interfaces.user.dto.response.UserResponse;
 import kr.hhplus.be.server.support.exception.ErrorResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -47,8 +50,8 @@ public interface UserControllerDocs {
                             examples = @ExampleObject(
                                     value = """
                                             {
-                                                "code": "USER_NOT_FOUND",
-                                                "message": "사용자를 찾을 수 없습니다."
+                                                "code": "NOT_FOUND",
+                                                "message": "리소스를 찾을 수 없습니다."
                                             }
                                             """
                             )
@@ -63,8 +66,8 @@ public interface UserControllerDocs {
                             examples = @ExampleObject(
                                     value = """
                                             {
-                                                "code": "INVALID_NAGATIVE_PARAMETER",
-                                                "message": "음수 값은 허용되지 않습니다."
+                                                "code": "INVALID_REQUEST",
+                                                "message": "유효하지 않은 요청입니다."
                                             }
                                             """
                             )
@@ -88,7 +91,10 @@ public interface UserControllerDocs {
             )
     })
     ResponseEntity<UserResponse> chargePoint(
-            @Parameter(description = "잔액을 충전할 사용자 ID", required = true) Long userId
+            @Parameter(description = "잔액을 충전할 사용자 ID", required = true)
+            @PathVariable Long userId,
+            @Parameter(description = "충전할 금액 정보", required = true)
+            @RequestBody PointChargeRequest request
     );
 
     @Operation(summary = "사용자 잔액 조회", description = "특정 사용자의 현재 잔액을 조회합니다.")
@@ -107,8 +113,8 @@ public interface UserControllerDocs {
                             examples = @ExampleObject(
                                     value = """
                                             {
-                                                "code": "USER_NOT_FOUND",
-                                                "message": "사용자를 찾을 수 없습니다."
+                                                "code": "NOT_FOUND",
+                                                "message": "리소스를 찾을 수 없습니다."
                                             }
                                             """
                             )
@@ -153,8 +159,8 @@ public interface UserControllerDocs {
                             examples = @ExampleObject(
                                     value = """
                                             {
-                                                "code": "USER_NOT_FOUND",
-                                                "message": "사용자를 찾을 수 없습니다."
+                                                "code": "NOT_FOUND",
+                                                "message": "리소스를 찾을 수 없습니다."
                                             }
                                             """
                             )
