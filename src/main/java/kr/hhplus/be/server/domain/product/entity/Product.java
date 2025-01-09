@@ -41,4 +41,11 @@ public class Product extends BaseEntity {
         productStock.allocateStock(quantity);
     }
 
+    public ProductStock getProductStock() {
+        if (productStock == null) {
+            return ProductStock.create(this);
+        }
+        return productStock;
+    }
+
 }

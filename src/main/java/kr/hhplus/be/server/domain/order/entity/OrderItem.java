@@ -21,11 +21,13 @@ public class OrderItem extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = LAZY, optional = false)
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_id", nullable = false,
+            foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Order order;
 
     @ManyToOne(fetch = LAZY, optional = false)
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "product_id", nullable = false,
+            foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Product product;
 
     @Column(name = "order_item_name", nullable = false, length = 30)
