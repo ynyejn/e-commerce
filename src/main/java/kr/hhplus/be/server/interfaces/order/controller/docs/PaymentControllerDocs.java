@@ -38,10 +38,10 @@ public interface PaymentControllerDocs {
                                     value = """
                                             {
                                                 "orderId": 1000,
-                                                "orderNumber": "2025010514001345332",
-                                                "status": "결제완료",
-                                                "amount": 10000,
-                                                "quantity": 10,
+                                                "orderNo": "2025010514001345332",
+                                                "status": "결제 완료",
+                                                "totalAmount": 10000,
+                                                "totalQuantity": 10,
                                                 "createdAt": "2025-01-05T14:00:13"
                                             }
                                             """
@@ -50,14 +50,14 @@ public interface PaymentControllerDocs {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "잘못된 결제 요청",
+                    description = "잘못된 결제 요청, 잔액 부족",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject(
                                     value = """
                                             {
-                                                "code": "BAD_REQUEST",
+                                                "code": "INVALID_REQUEST",
                                                 "message": "잘못된 요청입니다."
                                             }
                                             """
@@ -74,7 +74,7 @@ public interface PaymentControllerDocs {
                                     value = """
                                             {
                                                 "code": "NOT_FOUND",
-                                                "message": "요청한 주문을 찾을 수 없습니다."
+                                                "message": "리소스를 찾을 수 없습니다."
                                             }
                                             """
                             )

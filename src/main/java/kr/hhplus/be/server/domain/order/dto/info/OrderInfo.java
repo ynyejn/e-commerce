@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
 
 public record OrderInfo(
         Long orderId,
-        String orderNumber,
+        String orderNo,
         String status,
-        BigDecimal amount,
-        Integer quantity,
+        BigDecimal totalAmount,
+        Integer totalQuantity,
         LocalDateTime createdAt,
         LocalDateTime paidAt
 ) {

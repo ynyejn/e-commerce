@@ -9,7 +9,7 @@ public record OrderCreateCriteria(
         List<OrderItemCriteria> products,
         Long couponIssueId
 ) {
-    public OrderCreateCommand toCommand() {
+    public OrderCreateCommand toOrderCommand() {
         return new OrderCreateCommand(
                 userId,
                 products.stream()
@@ -21,6 +21,7 @@ public record OrderCreateCriteria(
                 couponIssueId
         );
     }
+
 
     public record OrderItemCriteria(
             Long productId,

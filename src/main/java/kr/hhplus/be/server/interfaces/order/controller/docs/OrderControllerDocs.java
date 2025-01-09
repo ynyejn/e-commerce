@@ -54,15 +54,15 @@ public interface OrderControllerDocs {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "잘못된 주문 요청",
+                    description = "잘못된 주문 요청, 잔액 부족",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject(
                                     value = """
                                             {
-                                                "code": "BAD_REQUEST",
-                                                "message": "잘못된 요청입니다."
+                                                "code": "INVALID_REQUEST",
+                                                "message": "유효하지 않은 요청입니다."
                                             }
                                             """
                             )
@@ -78,7 +78,7 @@ public interface OrderControllerDocs {
                                     value = """
                                             {
                                                 "code": "NOT_FOUND",
-                                                "message": "요청한 상품을 찾을 수 없습니다."
+                                                "message": "리소스를 찾을 수 없습니다."
                                             }
                                             """
                             )
@@ -93,24 +93,8 @@ public interface OrderControllerDocs {
                             examples = @ExampleObject(
                                     value = """
                                             {
-                                                "code": "STOCK_INSUFFICIENT",
-                                                "message": "상품의 재고가 부족합니다."
-                                            }
-                                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "402",
-                    description = "잔액 부족",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(
-                                    value = """
-                                            {
-                                                "code": "PAYMENT_REQUIRED",
-                                                "message": "잔액이 부족합니다."
+                                                "code": "INSUFFICIENT_STOCK",
+                                                "message": "재고가 부족합니다."
                                             }
                                             """
                             )

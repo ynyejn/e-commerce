@@ -12,71 +12,73 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.hhplus.be.server.interfaces.product.dto.response.PopularProductResponse;
 import kr.hhplus.be.server.interfaces.product.dto.response.ProductResponse;
 import kr.hhplus.be.server.support.exception.ErrorResponse;
+import kr.hhplus.be.server.support.response.PageResultResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 @Tag(name = "product", description = "product API")
 public interface ProductControllerDocs {
-    
+
     @Operation(
-        summary = "단일 상품 조회", 
-        description = "상품 ID를 통해 특정 상품의 상세 정보를 조회합니다. 상품의 이름, 가격, 재고 수량 정보를 포함합니다."
+            summary = "상품 목록 조회",
+            description = "전체 상품 목록을 페이징하여 조회합니다. "
     )
     @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "상품 조회 성공",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ProductResponse.class),
-                examples = @ExampleObject(
-                    value = """
-                        {
-                            "id": 1,
-                            "name": "맥북 프로",
-                            "price": 2000000,
-                            "stock": 100
-                        }
-                        """
-                )
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "상품 목록 조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PageResultResponse.class),
+                            examples = @ExampleObject(
+                                    value = """
+                   {
+                       "result": true,
+                       "totalPages": 2,
+                       "totalCount": 12,
+                       "currentCount": 10,
+                       "data": [
+                           {
+                               "productId": 1,
+                               "name": "맥북 프로",
+                               "price": 2000000,
+                               "stock": 100
+                           },
+                           {
+                               "productId": 2,
+                               "name": "아이패드",
+                               "price": 1000000,
+                               "stock": 50
+                           }
+                       ]
+                   }
+                   """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "서버 오류",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    value = """
+                   {
+                       "code": "INTERNAL_SERVER_ERROR",
+                       "message": "서버 내부 오류가 발생했습니다."
+                   }
+                   """
+                            )
+                    )
             )
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "상품을 찾을 수 없음",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class),
-                examples = @ExampleObject(
-                    value = """
-                        {
-                            "code": "NOT_FOUND",
-                            "message": "요청한 자원을 찾을 수 없습니다."
-                        }
-                        """
-                )
-            )
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description = "서버 오류",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class),
-                examples = @ExampleObject(
-                    value = """
-                        {
-                            "code": "INTERNAL_SERVER_ERROR",
-                            "message": "서버 내부 오류가 발생했습니다."
-                        }
-                        """
-                )
-            )
-        )
     })
-    ResponseEntity<ProductResponse> getProduct(
-        @Parameter(description = "조회할 상품의 ID", required = true) Long productId
+    PageResultResponse<List<ProductResponse>> getAllProducts(
+            @Parameter(description = "페이지 정보 (페이지 번호, 크기)")
+            Pageable pageable
     );
 
     @Operation(

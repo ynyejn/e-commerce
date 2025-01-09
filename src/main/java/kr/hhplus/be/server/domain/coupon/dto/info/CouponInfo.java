@@ -22,7 +22,7 @@ public record CouponInfo(
                 couponIssue.getId(),
                 couponIssue.getCoupon().getName(),
                 couponIssue.getStatus(),
-                couponIssue.getCoupon().getDiscountType().name(),
+                couponIssue.getCoupon().getDiscountType().getDescription(),
                 couponIssue.getCoupon().getDiscountValue(),
                 couponIssue.getExpiredAt(),
                 couponIssue.getUsedAt() != null ? couponIssue.getUsedAt() : null,

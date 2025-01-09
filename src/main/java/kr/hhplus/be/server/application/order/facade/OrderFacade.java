@@ -1,7 +1,10 @@
 package kr.hhplus.be.server.application.order.facade;
 
 import kr.hhplus.be.server.application.order.dto.criteria.OrderCreateCriteria;
+import kr.hhplus.be.server.domain.order.dto.command.PaymentCreateCommand;
+import kr.hhplus.be.server.domain.order.dto.info.OrderInfo;
 import kr.hhplus.be.server.domain.order.service.OrderService;
+import kr.hhplus.be.server.domain.order.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -9,10 +12,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrderFacade {
     private final OrderService orderService;
-//    private final PaymentService paymentService;
+    private final PaymentService paymentService;
 
-    public void order(OrderCreateCriteria criteria) {
-        orderService.order(criteria.toCommand());
-//        paymentService.pay();
+    public OrderInfo order(OrderCreateCriteria criteria) {
+        OrderInfo info = orderService.order(criteria.toOrderCommand());
+        info = paymentService.pay(PaymentCreateCommand.from(info.orderId()));
+        return info;
     }
 }
