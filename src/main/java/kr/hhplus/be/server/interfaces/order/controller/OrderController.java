@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.interfaces.order.controller;
 
+import kr.hhplus.be.server.application.order.dto.result.OrderResult;
 import kr.hhplus.be.server.application.order.facade.OrderFacade;
 import kr.hhplus.be.server.domain.order.dto.info.OrderInfo;
 import kr.hhplus.be.server.interfaces.order.controller.docs.OrderControllerDocs;
@@ -26,8 +27,8 @@ public class OrderController implements OrderControllerDocs {
      */
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderCreateRequest request) {
-        OrderInfo info = orderFacade.order(request.toCriteria());
-        return ResponseEntity.ok(OrderResponse.from(info));
+        OrderResult result = orderFacade.order(request.toCriteria());
+        return ResponseEntity.ok(OrderResponse.from(result));
     }
 
 

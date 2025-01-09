@@ -19,7 +19,8 @@ public class Payment extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "order_id",
+            foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Order order;
 
     @Column(name = "payment_amount", nullable = false, precision = 10, scale = 2)

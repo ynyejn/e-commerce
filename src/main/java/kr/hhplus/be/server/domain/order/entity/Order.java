@@ -26,7 +26,7 @@ import static kr.hhplus.be.server.support.exception.ApiErrorCode.INVALID_REQUEST
 
 @Entity
 @Getter
-@Table(name = "order")
+@Table(name = "`order`")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseEntity {
     private static final BigDecimal SHIPPING_AMOUNT = BigDecimal.valueOf(3000);
@@ -36,11 +36,13 @@ public class Order extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id",
+            foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private User user;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "coupon_id")
+    @JoinColumn(name = "coupon_id"
+            ,foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Coupon coupon;
 
     @Column(name = "order_no", nullable = false, unique = true, length = 18)

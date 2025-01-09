@@ -19,11 +19,13 @@ public class ProductStockHistory extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_stock_id", nullable = false)
+    @JoinColumn(name = "product_stock_id", nullable = false,
+            foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private ProductStock productStock;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_item_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_item_id",
+            foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private OrderItem orderItem;
 
 
