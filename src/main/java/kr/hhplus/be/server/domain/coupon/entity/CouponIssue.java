@@ -18,7 +18,10 @@ import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Getter
-@Table(name = "coupon_issue")
+@Table(name = "coupon_issue",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "coupon_id"})
+        })
 @NoArgsConstructor(access = PROTECTED)
 public class CouponIssue extends BaseEntity {
     @Id

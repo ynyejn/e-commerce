@@ -42,9 +42,6 @@ public class Product extends BaseEntity {
     }
 
     public ProductStock getProductStock() {
-        if (productStock == null) {
-            return ProductStock.create(this);
-        }
         return productStock;
     }
 

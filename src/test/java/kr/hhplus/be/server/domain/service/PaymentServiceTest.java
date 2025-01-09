@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.domain.service;
 
 import kr.hhplus.be.server.domain.order.dto.command.PaymentCreateCommand;
-import kr.hhplus.be.server.domain.order.dto.info.OrderInfo;
 import kr.hhplus.be.server.domain.order.entity.Order;
 import kr.hhplus.be.server.domain.order.entity.OrderItem;
 import kr.hhplus.be.server.domain.order.entity.Payment;

@@ -12,4 +12,6 @@ public interface IOrderRepository {
     Optional<Order> findById(Long aLong);
 
     List<PopularProductQuery> findTopFivePopularProducts();
+
+    List<Order> findByUserId(long l);
 }

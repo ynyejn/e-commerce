@@ -32,4 +32,9 @@ public class OrderRepositoryImpl implements IOrderRepository {
         return orderQueryRepository.findTopFivePopularProducts();
     }
 
+    @Override
+    public List<Order> findByUserId(long userId) {
+        return orderJpaRepository.findByUserId(userId);
+    }
+
 }
