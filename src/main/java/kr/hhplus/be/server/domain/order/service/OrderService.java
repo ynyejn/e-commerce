@@ -70,7 +70,7 @@ public class OrderService {
         return Optional.ofNullable(couponIssueId)
                 .map(user::findCouponIssue)
                 .map(coupon -> {
-                    coupon.validate();
+                    coupon.validateUseable();
                     return coupon;
                 })
                 .orElse(null);

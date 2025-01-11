@@ -3,16 +3,18 @@ package kr.hhplus.be.server.domain.coupon.entity;
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.constant.DiscountType;
 import kr.hhplus.be.server.domain.support.entity.BaseEntity;
+import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
-import static kr.hhplus.be.server.support.exception.ApiErrorCode.INSUFFICIENT_COUPON;
-import static kr.hhplus.be.server.support.exception.ApiErrorCode.INVALID_REQUEST;
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.*;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -52,6 +54,9 @@ public class Coupon extends BaseEntity {
     @Column(name = "issued_quantity", nullable = false)
     private Integer issuedQuantity = 0;
 
+    @OneToMany(mappedBy = "coupon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<CouponIssue> couponIssues = new ArrayList<>();
+
 
 
     private Coupon(String name, DiscountType discountType, BigDecimal discountValue,
@@ -74,15 +79,31 @@ public class Coupon extends BaseEntity {
                 minimumOrderAmount, issueStartAt, issueEndAt, validityPeriod, totalIssueQuantity);
     }
 
+    public CouponIssue issue(User user) {
+        validateIssuable(user);
+        this.issuedQuantity++;
+        CouponIssue couponIssue = CouponIssue.create(user, this);
+        this.couponIssues.add(couponIssue);
+        return couponIssue;
+    }
 
-    public void issueCoupon() {
+    private void validateIssuable(User user) {
+        // 이미 발급된 쿠폰인지 확인
+        if (couponIssues.stream().anyMatch(issue -> issue.getUser().getId().equals(user.getId()))) {
+            throw new ApiException(CONFLICT);
+        }
+
+        // 발급 가능 기간인지 확인
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(issueStartAt) || now.isAfter(issueEndAt)) {
             throw new ApiException(INVALID_REQUEST);
         }
+
+        // 발급 가능 수량인지 확인
         if (totalIssueQuantity != null && issuedQuantity >= totalIssueQuantity) {
             throw new ApiException(INSUFFICIENT_COUPON);
         }
-        this.issuedQuantity++;
     }
+
+
 }

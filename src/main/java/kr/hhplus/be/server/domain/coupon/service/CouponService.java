@@ -29,8 +29,7 @@ public class CouponService {
         Coupon coupon = couponRepository.findByIdWithLock(command.couponId())
                 .orElseThrow(() -> new ApiException(NOT_FOUND));
 
-        user.issueCoupon(coupon);
-        CouponIssue couponIssue = CouponIssue.create(user, coupon);
+        CouponIssue couponIssue = coupon.issue(user);
         return CouponInfo.from(couponIssueRepository.save(couponIssue));
     }
 }

@@ -50,13 +50,13 @@ class CouponIssueTest {
     @DisplayName("쿠폰사용")
     class useCouponIssueTest {
         @Test
-        void 쿠폰검증시_이미_사용된_쿠폰이면_INVALID_REQUEST_예외가_발생한다() {
+        void 쿠폰사용검증시_이미_사용된_쿠폰이면_INVALID_REQUEST_예외가_발생한다() {
             // given
             CouponIssue couponIssue = createCouponIssue();
             ReflectionTestUtils.setField(couponIssue, "usedAt", LocalDateTime.now());
 
             // when & then
-            assertThatThrownBy(() -> couponIssue.validate())
+            assertThatThrownBy(() -> couponIssue.validateUseable())
                     .isInstanceOf(ApiException.class)
                     .extracting("apiErrorCode")
                     .isEqualTo(ApiErrorCode.INVALID_REQUEST);
@@ -69,7 +69,7 @@ class CouponIssueTest {
             ReflectionTestUtils.setField(couponIssue, "expiredAt", LocalDateTime.now().minusDays(1));
 
             // when & then
-            assertThatThrownBy(() -> couponIssue.validate())
+            assertThatThrownBy(() -> couponIssue.validateUseable())
                     .isInstanceOf(ApiException.class)
                     .extracting("apiErrorCode")
                     .isEqualTo(ApiErrorCode.INVALID_REQUEST);
