@@ -9,4 +9,6 @@ public interface IUserRepository {
     Optional<User> findById(Long aLong);
 
     User save(User user);
+
+    Optional<User> findByIdWithPoint(Long aLong);
 }

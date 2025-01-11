@@ -76,7 +76,7 @@ class OrderServiceTest {
         Product product = Product.create("테스트상품", BigDecimal.valueOf(10000));
 
         when(userRepository.findById(command.userId())).thenReturn(Optional.of(user));
-        when(productRepository.findById(any())).thenReturn(Optional.of(product));
+        when(productRepository.findByIdWithStock(any())).thenReturn(Optional.of(product));
 
         // when & then
         assertThatThrownBy(() -> orderService.order(command))

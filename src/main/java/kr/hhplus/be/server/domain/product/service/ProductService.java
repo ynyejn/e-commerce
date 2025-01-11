@@ -28,7 +28,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Page<ProductInfo> getAllProducts(Pageable pageable) {
-        Page<Product> products = productRepository.findAll(pageable);
+        Page<Product> products = productRepository.findAllProducts(pageable);
         return products.map(ProductInfo::from);
     }
 

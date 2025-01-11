@@ -55,7 +55,6 @@ public class User extends BaseEntity {
             this.point = Point.create(this);
         }
         return this.point.charge(amount);
-
     }
 
     public void pay(BigDecimal amount) {
