@@ -41,8 +41,5 @@ public class Product extends BaseEntity {
         productStock.allocateStock(quantity);
     }
 
-    public ProductStock getProductStock() {
-        return productStock;
-    }
 
 }

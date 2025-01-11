@@ -11,5 +11,9 @@ public interface IProductRepository {
 
     Optional<Product> findById(Long id);
 
+    Optional<Product> findByIdWithStock(Long aLong);
+
     Product save(Product product);
+
+    Page<Product> findAllProducts(Pageable pageable);
 }

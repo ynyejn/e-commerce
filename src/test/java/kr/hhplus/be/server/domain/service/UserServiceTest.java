@@ -38,7 +38,7 @@ class UserServiceTest {
     void 포인트충전시_사용자가_존재하지않으면_NOT_FOUND_예외가_발생한다() {
         // given
         PointChargeCommand command = new PointChargeCommand(1L, BigDecimal.valueOf(10000));
-        when(userRepository.findById(command.userId())).thenReturn(Optional.empty());
+        when(userRepository.findByIdWithPoint(command.userId())).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> userService.chargePoint(command))
@@ -51,7 +51,7 @@ class UserServiceTest {
     void 포인트조회시_사용자가_존재하지않으면_NOT_FOUND_예외가_발생한다() {
         // given
         Long userId = 1L;
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findByIdWithPoint(userId)).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> userService.getPoint(userId))
@@ -65,7 +65,7 @@ class UserServiceTest {
         // given
         Long userId = 1L;
         User user = createUser();
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findByIdWithPoint(userId)).thenReturn(Optional.of(user));
 
         // when & then
         assertThatThrownBy(() -> userService.getPoint(userId))

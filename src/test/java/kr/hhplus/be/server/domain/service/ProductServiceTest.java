@@ -49,7 +49,7 @@ class ProductServiceTest {
                 pageable,
                 0
         );
-        when(productRepository.findAll(pageable)).thenReturn(emptyPage);
+        when(productRepository.findAllProducts(pageable)).thenReturn(emptyPage);
 
         // when
         Page<ProductInfo> result = productService.getAllProducts(pageable);
@@ -58,7 +58,7 @@ class ProductServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEmpty();
         assertThat(result.getTotalElements()).isZero();
-        verify(productRepository).findAll(pageable);
+        verify(productRepository).findAllProducts(pageable);
     }
 
     @Test
