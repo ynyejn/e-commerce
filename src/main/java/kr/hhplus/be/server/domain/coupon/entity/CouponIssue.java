@@ -55,14 +55,13 @@ public class CouponIssue extends BaseEntity {
         return new CouponIssue(user, coupon, expiredAt);
     }
 
-    public void validate() {
+    public void validateUseable () {
         if (usedAt != null) {
             throw new ApiException(ApiErrorCode.INVALID_REQUEST);
         }
         if (expiredAt.isBefore(LocalDateTime.now())) {
             throw new ApiException(ApiErrorCode.INVALID_REQUEST);
         }
-
     }
 
     public BigDecimal calculateDiscountAmount(BigDecimal orderAmount) {

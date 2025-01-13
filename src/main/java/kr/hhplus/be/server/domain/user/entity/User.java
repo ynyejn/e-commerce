@@ -50,26 +50,12 @@ public class User extends BaseEntity {
                 .orElseThrow(() -> new ApiException(NOT_FOUND));
     }
 
-
-    public boolean hasCoupon(Coupon coupon) {
-        return this.coupons.stream().anyMatch(issue -> issue.getCoupon().getId().equals(coupon.getId()));
-    }
-
     public Point chargePoint(BigDecimal amount) {
         if (this.point == null) {
             this.point = Point.create(this);
         }
         return this.point.charge(amount);
-
     }
-
-    public void issueCoupon(Coupon coupon) {
-        if (hasCoupon(coupon)){ // 이미 발급된 쿠폰인지 확인
-            throw new ApiException(CONFLICT);
-        }
-        coupon.issueCoupon();   // 쿠폰 상태가 발급 가능한지 확인 후 발급
-    }
-
 
     public void pay(BigDecimal amount) {
         if (this.point == null) {

@@ -52,7 +52,7 @@ public class OrderService {
     }
 
     private OrderItem createOrderItem(OrderCreateCommand.OrderItemCommand command) {
-        Product product = productRepository.findById(command.productId())
+        Product product = productRepository.findByIdWithStock(command.productId())
                 .orElseThrow(() -> new ApiException(NOT_FOUND));
         if (product.getProductStock() == null) {
             throw new ApiException(NOT_FOUND);
@@ -70,7 +70,7 @@ public class OrderService {
         return Optional.ofNullable(couponIssueId)
                 .map(user::findCouponIssue)
                 .map(coupon -> {
-                    coupon.validate();
+                    coupon.validateUseable();
                     return coupon;
                 })
                 .orElse(null);
