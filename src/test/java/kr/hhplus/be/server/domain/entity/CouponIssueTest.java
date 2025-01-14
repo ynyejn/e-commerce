@@ -1,28 +1,25 @@
 package kr.hhplus.be.server.domain.entity;
 
 
-import kr.hhplus.be.server.domain.constant.DiscountType;
-import kr.hhplus.be.server.domain.coupon.entity.Coupon;
-import kr.hhplus.be.server.domain.coupon.entity.CouponIssue;
-import kr.hhplus.be.server.domain.order.entity.Order;
-import kr.hhplus.be.server.domain.user.entity.User;
+import kr.hhplus.be.server.domain.coupon.Coupon;
+import kr.hhplus.be.server.domain.coupon.Coupon.DiscountType;
+import kr.hhplus.be.server.domain.coupon.CouponIssue;
+import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiErrorCode;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.N;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-import static kr.hhplus.be.server.domain.constant.CouponStatus.*;
+import static kr.hhplus.be.server.domain.coupon.CouponIssue.CouponStatus.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.BDDAssertions.within;
-import static org.mockito.Mockito.mock;
 
 class CouponIssueTest {
 

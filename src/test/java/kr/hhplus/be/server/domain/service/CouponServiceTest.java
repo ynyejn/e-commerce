@@ -1,11 +1,10 @@
 package kr.hhplus.be.server.domain.service;
 
-import kr.hhplus.be.server.domain.coupon.dto.command.CouponIssueCommand;
-import kr.hhplus.be.server.domain.coupon.repository.ICouponIssueRepository;
-import kr.hhplus.be.server.domain.coupon.repository.ICouponRepository;
-import kr.hhplus.be.server.domain.coupon.service.CouponService;
-import kr.hhplus.be.server.domain.user.entity.User;
-import kr.hhplus.be.server.domain.user.repository.IUserRepository;
+import kr.hhplus.be.server.domain.coupon.CouponIssueCommand;
+import kr.hhplus.be.server.domain.coupon.CouponService;
+import kr.hhplus.be.server.domain.coupon.ICouponRepository;
+import kr.hhplus.be.server.domain.user.IUserRepository;
+import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,9 +23,6 @@ class CouponServiceTest {
 
     @Mock
     private ICouponRepository couponRepository;
-
-    @Mock
-    private ICouponIssueRepository couponIssueRepository;
 
     @Mock
     private IUserRepository userRepository;

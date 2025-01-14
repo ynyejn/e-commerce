@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.domain.service.integration;
 
-import kr.hhplus.be.server.domain.coupon.dto.command.CouponIssueCommand;
-import kr.hhplus.be.server.domain.coupon.dto.info.CouponInfo;
-import kr.hhplus.be.server.domain.coupon.service.CouponService;
+import kr.hhplus.be.server.domain.coupon.CouponInfo;
+import kr.hhplus.be.server.domain.coupon.CouponIssueCommand;
+import kr.hhplus.be.server.domain.coupon.CouponService;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

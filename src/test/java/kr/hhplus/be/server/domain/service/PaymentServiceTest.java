@@ -1,15 +1,15 @@
 package kr.hhplus.be.server.domain.service;
 
-import kr.hhplus.be.server.domain.order.dto.command.PaymentCreateCommand;
-import kr.hhplus.be.server.domain.order.entity.Order;
-import kr.hhplus.be.server.domain.order.entity.OrderItem;
-import kr.hhplus.be.server.domain.order.entity.Payment;
-import kr.hhplus.be.server.domain.order.event.PaymentEvent;
-import kr.hhplus.be.server.domain.order.repository.IOrderRepository;
-import kr.hhplus.be.server.domain.order.repository.IPaymentRepository;
-import kr.hhplus.be.server.domain.order.service.PaymentService;
-import kr.hhplus.be.server.domain.product.entity.Product;
-import kr.hhplus.be.server.domain.user.entity.User;
+import kr.hhplus.be.server.domain.order.IOrderRepository;
+import kr.hhplus.be.server.domain.order.Order;
+import kr.hhplus.be.server.domain.order.OrderItem;
+import kr.hhplus.be.server.domain.order.OrderEvent;
+import kr.hhplus.be.server.domain.payment.IPaymentRepository;
+import kr.hhplus.be.server.domain.payment.Payment;
+import kr.hhplus.be.server.domain.payment.PaymentCreateCommand;
+import kr.hhplus.be.server.domain.payment.PaymentService;
+import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -70,7 +69,7 @@ class PaymentServiceTest {
         paymentService.pay(command);
 
         // then
-        verify(eventPublisher).publishEvent(any(PaymentEvent.class));
+        verify(eventPublisher).publishEvent(any(OrderEvent.class));
         verify(paymentRepository).save(any(Payment.class));
     }
 

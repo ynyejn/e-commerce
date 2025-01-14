@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.domain.service.integration;
 
-import kr.hhplus.be.server.domain.order.dto.command.OrderCreateCommand;
-import kr.hhplus.be.server.domain.order.dto.info.OrderInfo;
-import kr.hhplus.be.server.domain.order.service.OrderService;
+import kr.hhplus.be.server.domain.order.OrderCreateCommand;
+import kr.hhplus.be.server.domain.order.OrderInfo;
+import kr.hhplus.be.server.domain.order.OrderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Sql(scripts = {"/cleanup.sql", "/test-data.sql"})

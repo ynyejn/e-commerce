@@ -1,12 +1,10 @@
 package kr.hhplus.be.server.domain.service;
 
-import kr.hhplus.be.server.domain.user.dto.command.PointChargeCommand;
-import kr.hhplus.be.server.domain.user.dto.info.PointInfo;
-import kr.hhplus.be.server.domain.user.entity.Point;
-import kr.hhplus.be.server.domain.user.entity.User;
-import kr.hhplus.be.server.domain.user.repository.IPointRepository;
-import kr.hhplus.be.server.domain.user.repository.IUserRepository;
-import kr.hhplus.be.server.domain.user.service.UserService;
+import kr.hhplus.be.server.domain.user.IPointRepository;
+import kr.hhplus.be.server.domain.user.PointChargeCommand;
+import kr.hhplus.be.server.domain.user.IUserRepository;
+import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.domain.user.UserService;
 import kr.hhplus.be.server.support.exception.ApiErrorCode;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.Test;
@@ -19,7 +17,6 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

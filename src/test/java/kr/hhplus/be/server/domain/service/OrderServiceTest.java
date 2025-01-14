@@ -1,14 +1,12 @@
 package kr.hhplus.be.server.domain.service;
 
-import kr.hhplus.be.server.domain.order.dto.command.OrderCreateCommand;
-import kr.hhplus.be.server.domain.order.repository.IOrderRepository;
-import kr.hhplus.be.server.domain.order.service.OrderService;
-import kr.hhplus.be.server.domain.product.entity.Product;
-import kr.hhplus.be.server.domain.product.entity.ProductStock;
-import kr.hhplus.be.server.domain.product.repository.IProductRepository;
-import kr.hhplus.be.server.domain.product.repository.IProductStockRepository;
-import kr.hhplus.be.server.domain.user.entity.User;
-import kr.hhplus.be.server.domain.user.repository.IUserRepository;
+import kr.hhplus.be.server.domain.order.IOrderRepository;
+import kr.hhplus.be.server.domain.order.OrderCreateCommand;
+import kr.hhplus.be.server.domain.order.OrderService;
+import kr.hhplus.be.server.domain.product.IProductRepository;
+import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.user.IUserRepository;
+import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,8 +31,6 @@ class OrderServiceTest {
     private IUserRepository userRepository;
     @Mock
     private IProductRepository productRepository;
-    @Mock
-    private IProductStockRepository productStockRepository;
     @InjectMocks
     private OrderService orderService;
 
@@ -84,6 +80,6 @@ class OrderServiceTest {
                 .extracting("apiErrorCode")
                 .isEqualTo(NOT_FOUND);
 
-        verify(productStockRepository, never()).findByIdWithLock(any());
+        verify(productRepository, never()).findByIdWithLock(any());
     }
 }

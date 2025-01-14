@@ -1,15 +1,15 @@
 package kr.hhplus.be.server.application.facade;
 
-import kr.hhplus.be.server.application.order.dto.criteria.OrderCreateCriteria;
-import kr.hhplus.be.server.application.order.dto.result.OrderResult;
-import kr.hhplus.be.server.application.order.facade.OrderFacade;
-import kr.hhplus.be.server.domain.constant.OrderStatus;
-import kr.hhplus.be.server.domain.order.entity.Order;
-import kr.hhplus.be.server.domain.order.repository.IOrderRepository;
-import kr.hhplus.be.server.domain.product.entity.Product;
-import kr.hhplus.be.server.domain.product.repository.IProductRepository;
-import kr.hhplus.be.server.domain.user.entity.User;
-import kr.hhplus.be.server.domain.user.repository.IUserRepository;
+import kr.hhplus.be.server.application.order.OrderCreateCriteria;
+import kr.hhplus.be.server.application.order.OrderResult;
+import kr.hhplus.be.server.application.order.OrderFacade;
+import kr.hhplus.be.server.domain.order.Order.OrderStatus;
+import kr.hhplus.be.server.domain.order.Order;
+import kr.hhplus.be.server.domain.order.IOrderRepository;
+import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.product.IProductRepository;
+import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.domain.user.IUserRepository;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,11 +1,10 @@
 package kr.hhplus.be.server.domain.service.integration;
 
-import kr.hhplus.be.server.domain.coupon.dto.info.CouponInfo;
-import kr.hhplus.be.server.domain.user.dto.command.PointChargeCommand;
-import kr.hhplus.be.server.domain.user.dto.info.PointInfo;
-import kr.hhplus.be.server.domain.user.entity.User;
-import kr.hhplus.be.server.domain.user.repository.IUserRepository;
-import kr.hhplus.be.server.domain.user.service.UserService;
+import kr.hhplus.be.server.domain.coupon.CouponInfo;
+import kr.hhplus.be.server.domain.user.PointChargeCommand;
+import kr.hhplus.be.server.domain.user.PointInfo;
+import kr.hhplus.be.server.domain.user.IUserRepository;
+import kr.hhplus.be.server.domain.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

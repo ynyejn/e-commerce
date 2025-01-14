@@ -1,16 +1,14 @@
 package kr.hhplus.be.server.domain.entity;
 
-import kr.hhplus.be.server.domain.constant.DiscountType;
-import kr.hhplus.be.server.domain.coupon.entity.Coupon;
-import kr.hhplus.be.server.domain.coupon.entity.CouponIssue;
-import kr.hhplus.be.server.domain.user.entity.User;
+import kr.hhplus.be.server.domain.coupon.Coupon;
+import kr.hhplus.be.server.domain.coupon.Coupon.DiscountType;
+import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
