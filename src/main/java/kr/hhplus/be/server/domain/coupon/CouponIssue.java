@@ -72,7 +72,7 @@ public class CouponIssue extends BaseEntity {
         return new CouponIssue(user, coupon, expiredAt);
     }
 
-    public void validateUseable () {
+    public void validateUseable() {
         if (usedAt != null) {
             throw new ApiException(ApiErrorCode.INVALID_REQUEST);
         }

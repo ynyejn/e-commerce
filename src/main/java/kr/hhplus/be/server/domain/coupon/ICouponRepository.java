@@ -6,6 +6,7 @@ public interface ICouponRepository {
     Optional<Coupon> findById(Long aLong);
 
     Optional<Coupon> findByIdWithLock(Long aLong);
+
     CouponIssue save(CouponIssue couponIssue);
 
 }

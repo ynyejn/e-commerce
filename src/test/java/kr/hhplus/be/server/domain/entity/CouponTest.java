@@ -17,24 +17,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 class CouponTest {
 
     @Test
-    void 쿠폰_발급시_이미_발급된_쿠폰이면_CONFLICT_예외가_발생한다() {
-        // given
-        User user = User.create("테스트유저");
-        ReflectionTestUtils.setField(user, "id", 1L);
-
-        Coupon coupon = Coupon.create("테스트쿠폰", DiscountType.FIXED, BigDecimal.valueOf(1000), null, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1), 10, 10);
-        ReflectionTestUtils.setField(coupon, "id", 1L);
-        coupon.issue(user);
-
-        // when & then
-        assertThatThrownBy(() -> coupon.issue(user))
-                .isInstanceOf(ApiException.class)
-                .extracting("apiErrorCode")
-                .isEqualTo(CONFLICT);
-
-    }
-
-    @Test
     void 쿠폰_발급시_발급_가능_기간이_아니면_INVALID_REQUEST_예외가_발생한다(){
         // given
         User user = User.create("테스트유저");

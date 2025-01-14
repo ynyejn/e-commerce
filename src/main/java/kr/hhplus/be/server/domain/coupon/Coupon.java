@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
-import static kr.hhplus.be.server.support.exception.ApiErrorCode.*;
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.INSUFFICIENT_COUPON;
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.INVALID_REQUEST;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -53,9 +52,6 @@ public class Coupon extends BaseEntity {
     @Column(name = "issued_quantity", nullable = false)
     private Integer issuedQuantity = 0;
 
-    @OneToMany(mappedBy = "coupon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<CouponIssue> couponIssues = new ArrayList<>();
-
     public enum DiscountType {
         FIXED("정액"),
         PERCENTAGE("정률");
@@ -92,19 +88,13 @@ public class Coupon extends BaseEntity {
     }
 
     public CouponIssue issue(User user) {
-        validateIssuable(user);
+        validateIssuable();
         this.issuedQuantity++;
         CouponIssue couponIssue = CouponIssue.create(user, this);
-        this.couponIssues.add(couponIssue);
         return couponIssue;
     }
 
-    private void validateIssuable(User user) {
-        // 이미 발급된 쿠폰인지 확인
-        if (couponIssues.stream().anyMatch(issue -> issue.getUser().getId().equals(user.getId()))) {
-            throw new ApiException(CONFLICT);
-        }
-
+    private void validateIssuable() {
         // 발급 가능 기간인지 확인
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(issueStartAt) || now.isAfter(issueEndAt)) {
