@@ -12,7 +12,7 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleApiCustomException(ApiException ex) {
         return ResponseEntity.status(ex.getApiErrorCode().getHttpStatus())
-                .body(new ErrorResponse(ex.getApiErrorCode().getCode(), ex.getMessage()));
+                .body(new ErrorResponse(ex.getApiErrorCode().name() , ex.getMessage()));
     }
 
     @ExceptionHandler(value = Exception.class)
