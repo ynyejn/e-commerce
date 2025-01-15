@@ -4,7 +4,6 @@ package kr.hhplus.be.server.domain.user;
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.coupon.CouponIssue;
 import kr.hhplus.be.server.domain.support.BaseEntity;
-import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
-import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -38,24 +36,5 @@ public class User extends BaseEntity {
         return new User(name);
     }
 
-    public CouponIssue findCouponIssue(Long couponIssueId) {
-        return this.coupons.stream()
-                .filter(issue -> issue.getCoupon().getId().equals(couponIssueId))
-                .findFirst()
-                .orElseThrow(() -> new ApiException(NOT_FOUND));
-    }
-//
-//    public Point chargePoint(BigDecimal amount) {
-//        if (this.point == null) {
-//            this.point = Point.create(this);
-//        }
-//        return this.point.charge(amount);
-//    }
-//
-//    public void pay(BigDecimal amount) {
-//        if (this.point == null) {
-//            this.point = Point.create(this);
-//        }
-//        this.point.use(amount);
-//    }
+
 }

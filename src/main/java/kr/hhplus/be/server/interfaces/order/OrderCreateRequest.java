@@ -5,13 +5,11 @@ import kr.hhplus.be.server.application.order.OrderCreateCriteria;
 import java.util.List;
 
 public record OrderCreateRequest(
-        Long userId,
         List<OrderProductRequest> products,
         Long couponIssueId
 ) {
     public OrderCreateCriteria toCriteria() {
         return new OrderCreateCriteria(
-                this.userId(),
                 this.products().stream()
                         .map(orderProductRequest -> orderProductRequest.toCriteria())
                         .toList(),

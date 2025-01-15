@@ -38,11 +38,8 @@ public interface PaymentControllerDocs {
                                     value = """
                                             {
                                                 "orderId": 1000,
-                                                "orderNo": "2025010514001345332",
-                                                "status": "결제 완료",
-                                                "totalAmount": 10000,
-                                                "totalQuantity": 10,
-                                                "createdAt": "2025-01-05T14:00:13"
+                                                "paymentId": "1002",
+                                                "paymentAmount": 10000
                                             }
                                             """
                             )
@@ -97,7 +94,7 @@ public interface PaymentControllerDocs {
                     )
             )
     })
-    ResponseEntity<OrderResponse> createPayment(
+    ResponseEntity<PaymentResponse> createPayment(
             @Parameter(hidden = true) User user,
             @Parameter(
                     description = """
@@ -105,6 +102,6 @@ public interface PaymentControllerDocs {
                             """,
                     required = true
             )
-            @RequestBody CreatePaymentRequest request
+            @RequestBody PaymentCreateRequest request
     );
 }

@@ -8,19 +8,19 @@ public record OrderInfo(
         String orderNo,
         String status,
         BigDecimal totalAmount,
+        BigDecimal paymentAmount,
         Integer totalQuantity,
-        LocalDateTime createdAt,
-        LocalDateTime paidAt
+        LocalDateTime createdAt
 ) {
     public static OrderInfo from(Order order) {
         return new OrderInfo(
                 order.getId(),
                 order.getOrderNo(),
                 order.getStatus().getDescription(),
+                order.getTotalAmount(),
                 order.getPaymentAmount(),
                 order.getTotalQuantity(),
-                order.getCreatedAt(),
-                order.getPaidAt()
+                order.getCreatedAt()
         );
     }
 }
