@@ -1,9 +1,8 @@
 package kr.hhplus.be.server.interfaces.payment;
 
-import kr.hhplus.be.server.domain.order.OrderInfo;
+import kr.hhplus.be.server.domain.payment.PaymentInfo;
 import kr.hhplus.be.server.domain.payment.PaymentService;
 import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.interfaces.order.OrderResponse;
 import kr.hhplus.be.server.support.auth.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +22,8 @@ public class PaymentController implements PaymentControllerDocs {
      * 일반적으로 주문 시 결제 한번에 되지만 재시도 등의 이유로 결제만 따로 뺀 경우 사용
      */
     @PostMapping()
-    public ResponseEntity<OrderResponse> createPayment(@AuthenticatedUser User user, @RequestBody CreatePaymentRequest request) {
-        OrderInfo orderInfo = paymentService.pay(user, request.toCommand());
-        return ResponseEntity.ok(OrderResponse.from(orderInfo));
+    public ResponseEntity<PaymentResponse> createPayment(@AuthenticatedUser User user, @RequestBody PaymentCreateRequest request) {
+        PaymentInfo paymentInfo = paymentService.pay(user, request.toCommand());
+        return ResponseEntity.ok(PaymentResponse.from(paymentInfo));
     }
 }

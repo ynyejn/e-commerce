@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.domain.coupon;
 
 import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.domain.user.IUserRepository;
 import kr.hhplus.be.server.support.exception.ApiErrorCode;
 import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +18,6 @@ import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 @RequiredArgsConstructor
 public class CouponService {
     private final ICouponRepository couponRepository;
-    private final IUserRepository userRepository;
 
     @Transactional
     public CouponInfo issueCoupon(User user, CouponIssueCommand command) {
@@ -39,5 +38,18 @@ public class CouponService {
         return couponIssues.stream()
                 .map(CouponInfo::from)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public CouponDiscountInfo use(User user, Long couponIssueId, BigDecimal totalAmount) {
+        if (couponIssueId == null) {
+            return new CouponDiscountInfo(null, BigDecimal.ZERO, totalAmount, totalAmount);
+        }
+
+        CouponIssue couponIssue = couponRepository.findByCouponIssueId(couponIssueId)
+                .orElseThrow(() -> new ApiException(NOT_FOUND));
+        BigDecimal discountAmount = couponIssue.calculateDiscountAmount(totalAmount);
+        couponIssue.use(user);
+        return new CouponDiscountInfo(couponIssue.getId(), discountAmount, totalAmount, totalAmount.subtract(discountAmount));
     }
 }

@@ -11,8 +11,7 @@ public record OrderResult(
         String status,
         BigDecimal totalAmount,
         Integer totalQuantity,
-        LocalDateTime createdAt,
-        LocalDateTime paidAt
+        LocalDateTime createdAt
 ) {
     public static OrderResult from(OrderInfo orderInfo) {
         return new OrderResult(
@@ -21,8 +20,7 @@ public record OrderResult(
                 orderInfo.status(),
                 orderInfo.totalAmount(),
                 orderInfo.totalQuantity(),
-                orderInfo.createdAt(),
-                orderInfo.paidAt()
+                orderInfo.createdAt()
         );
     }
 }

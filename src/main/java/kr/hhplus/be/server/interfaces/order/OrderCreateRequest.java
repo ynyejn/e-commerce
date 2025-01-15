@@ -11,7 +11,6 @@ public record OrderCreateRequest(
 ) {
     public OrderCreateCriteria toCriteria() {
         return new OrderCreateCriteria(
-                this.userId(),
                 this.products().stream()
                         .map(orderProductRequest -> orderProductRequest.toCriteria())
                         .toList(),

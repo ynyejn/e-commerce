@@ -1,66 +1,55 @@
 package kr.hhplus.be.server.domain.order;
 
-import kr.hhplus.be.server.domain.coupon.CouponIssue;
-import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.product.ProductStock;
-import kr.hhplus.be.server.domain.product.ProductStockHistory;
-import kr.hhplus.be.server.domain.product.IProductRepository;
+import kr.hhplus.be.server.application.order.OrderConfirmCommand;
 import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.domain.user.IUserRepository;
 import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static kr.hhplus.be.server.support.exception.ApiErrorCode.*;
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
     private final IOrderRepository orderRepository;
-    private final IUserRepository userRepository;
-    private final IProductRepository productRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
 
     @Transactional
     public OrderInfo order(User user, OrderCreateCommand command) {
-        CouponIssue couponIssue = validateCouponIssue(command.couponIssueId(), user);
-
+        Order order = Order.create(user);
         List<OrderItem> orderItems = command.products().stream()
-                .map(this::createOrderItem)
+                .map(item -> OrderItem.create(item.product(), item.quantity()))
                 .collect(Collectors.toList());
 
-        Order order = Order.create(user, orderItems, couponIssue);
+        orderItems.forEach(order::addOrderItem);
+
+        order.calculateOrderAmounts();
         orderRepository.save(order);
 
         return OrderInfo.from(order);
     }
 
-    private OrderItem createOrderItem(OrderCreateCommand.OrderItemCommand command) {
-        Product product = productRepository.findByIdWithStock(command.productId())
+    @Transactional
+    public OrderInfo confirm(OrderConfirmCommand command) {
+        Order order = orderRepository.findById(command.orderId())
                 .orElseThrow(() -> new ApiException(NOT_FOUND));
-        if (product.getProductStock() == null) {
-            throw new ApiException(NOT_FOUND);
-        }
-        ProductStock productStock = productRepository.findByIdWithLock(product.getProductStock().getId())
-                .orElseThrow(() -> new ApiException(NOT_FOUND));
-
-        product.allocateStock(command.quantity());
-        OrderItem orderItem = OrderItem.create(product, command.quantity());
-        productRepository.save(ProductStockHistory.create(productStock, orderItem, command.quantity()));
-        return orderItem;
+        order.confirm();
+        eventPublisher.publishEvent(OrderEvent.from(order));
+        return OrderInfo.from(order);
     }
 
-    private CouponIssue validateCouponIssue(Long couponIssueId, User user) {
-        return Optional.ofNullable(couponIssueId)
-                .map(user::findCouponIssue)
-                .map(coupon -> {
-                    coupon.validateUseable();
-                    return coupon;
-                })
-                .orElse(null);
+    @Transactional
+    public OrderInfo applyCoupon(Long orderId, Long couponIssueId, BigDecimal discountAmount) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ApiException(NOT_FOUND));
+        order.applyCoupon(couponIssueId,discountAmount);
+        return OrderInfo.from(order);
     }
 }

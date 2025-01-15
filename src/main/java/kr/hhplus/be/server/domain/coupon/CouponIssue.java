@@ -72,11 +72,14 @@ public class CouponIssue extends BaseEntity {
         return new CouponIssue(user, coupon, expiredAt);
     }
 
-    public void validateUseable() {
+    public void validateUseable(User user) {
         if (usedAt != null) {
             throw new ApiException(ApiErrorCode.INVALID_REQUEST);
         }
         if (expiredAt.isBefore(LocalDateTime.now())) {
+            throw new ApiException(ApiErrorCode.INVALID_REQUEST);
+        }
+        if (!this.user.equals(user)) {
             throw new ApiException(ApiErrorCode.INVALID_REQUEST);
         }
     }
@@ -94,7 +97,8 @@ public class CouponIssue extends BaseEntity {
         }
     }
 
-    public void use() {
+    public void use(User user) {
+        validateUseable(user);
         this.usedAt = LocalDateTime.now();
     }
 

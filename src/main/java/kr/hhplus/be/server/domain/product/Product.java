@@ -37,9 +37,6 @@ public class Product extends BaseEntity {
         return new Product(name, price);
     }
 
-    public void allocateStock(int quantity) {
-        productStock.allocateStock(quantity);
-    }
 
 
 }

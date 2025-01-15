@@ -41,7 +41,7 @@ public class ProductStock extends BaseEntity {
         return new ProductStock(product, 0);
     }
 
-    public void allocateStock(int quantity) {
+    public void deduct(int quantity) {
         if (this.quantity < quantity) {
             throw new ApiException(ApiErrorCode.INSUFFICIENT_STOCK);
         }
