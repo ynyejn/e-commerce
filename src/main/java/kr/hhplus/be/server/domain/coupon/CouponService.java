@@ -43,13 +43,12 @@ public class CouponService {
     @Transactional(readOnly = true)
     public CouponDiscountInfo use(User user, Long couponIssueId, BigDecimal totalAmount) {
         if (couponIssueId == null) {
-            return new CouponDiscountInfo(null, BigDecimal.ZERO, totalAmount, totalAmount);
+            return new CouponDiscountInfo(null, BigDecimal.ZERO);
         }
 
-        CouponIssue couponIssue = couponRepository.findByCouponIssueId(couponIssueId)
-                .orElseThrow(() -> new ApiException(NOT_FOUND));
+        CouponIssue couponIssue = couponRepository.findByCouponIssueId(couponIssueId).orElseThrow(() -> new ApiException(NOT_FOUND));
         BigDecimal discountAmount = couponIssue.calculateDiscountAmount(totalAmount);
         couponIssue.use(user);
-        return new CouponDiscountInfo(couponIssue.getId(), discountAmount, totalAmount, totalAmount.subtract(discountAmount));
+        return new CouponDiscountInfo(couponIssue.getId(), discountAmount);
     }
 }

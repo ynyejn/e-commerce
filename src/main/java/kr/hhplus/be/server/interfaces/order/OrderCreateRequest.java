@@ -5,7 +5,6 @@ import kr.hhplus.be.server.application.order.OrderCreateCriteria;
 import java.util.List;
 
 public record OrderCreateRequest(
-        Long userId,
         List<OrderProductRequest> products,
         Long couponIssueId
 ) {

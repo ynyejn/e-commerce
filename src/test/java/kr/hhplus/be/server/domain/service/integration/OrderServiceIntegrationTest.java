@@ -25,8 +25,7 @@ class OrderServiceIntegrationTest {
         // given
         User user = User.create("테스트유저");
         OrderCreateCommand command = new OrderCreateCommand(
-                1L,  // 테스트 유저
-                List.of(new OrderCreateCommand.OrderItemCommand(1L, 10)),  // 테스트상품1 10개
+                List.of(new OrderCreateCommand.OrderItemCommand(1L, null,10)),  // 테스트상품1 10개
                 null  // 쿠폰 미사용
         );
 
@@ -47,8 +46,7 @@ class OrderServiceIntegrationTest {
         // given
         User user = User.create("테스트유저");
         OrderCreateCommand command = new OrderCreateCommand(
-                2L,  // 테스트 유저
-                List.of(new OrderCreateCommand.OrderItemCommand(1L, 5)),  // 테스트상품1 5개
+                List.of(new OrderCreateCommand.OrderItemCommand(1L, null,5)),  // 테스트상품1 5개
                 3L   // 정액할인 쿠폰 (5000원)
         );
 

@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.domain.order;
 
-import kr.hhplus.be.server.application.order.OrderConfirmCommand;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +37,7 @@ public class OrderService {
 
     @Transactional
     public OrderInfo confirm(OrderConfirmCommand command) {
-        Order order = orderRepository.findById(command.orderId())
-                .orElseThrow(() -> new ApiException(NOT_FOUND));
+        Order order = orderRepository.findById(command.orderId()).orElseThrow(() -> new ApiException(NOT_FOUND));
         order.confirm();
         eventPublisher.publishEvent(OrderEvent.from(order));
         return OrderInfo.from(order);
@@ -47,8 +45,7 @@ public class OrderService {
 
     @Transactional
     public OrderInfo applyCoupon(Long orderId, Long couponIssueId, BigDecimal discountAmount) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ApiException(NOT_FOUND));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ApiException(NOT_FOUND));
         order.applyCoupon(couponIssueId,discountAmount);
         return OrderInfo.from(order);
     }

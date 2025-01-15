@@ -33,7 +33,7 @@ public class CouponIssue extends BaseEntity {
             foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "coupon_id", nullable = false,
             foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Coupon coupon;
@@ -79,7 +79,7 @@ public class CouponIssue extends BaseEntity {
         if (expiredAt.isBefore(LocalDateTime.now())) {
             throw new ApiException(ApiErrorCode.INVALID_REQUEST);
         }
-        if (!this.user.equals(user)) {
+        if (!this.user.getId().equals(user.getId())) {
             throw new ApiException(ApiErrorCode.INVALID_REQUEST);
         }
     }
