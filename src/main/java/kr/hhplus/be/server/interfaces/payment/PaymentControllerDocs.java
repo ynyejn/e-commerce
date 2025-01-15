@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.interfaces.order.OrderResponse;
 import kr.hhplus.be.server.support.exception.ErrorResponse;
 import org.springframework.http.ResponseEntity;
@@ -97,6 +98,7 @@ public interface PaymentControllerDocs {
             )
     })
     ResponseEntity<OrderResponse> createPayment(
+            @Parameter(hidden = true) User user,
             @Parameter(
                     description = """
                             주문 ID를 요청해야 하며, 해당 주문의 결제 가능 여부를 확인한 후 결제가 진행됩니다.

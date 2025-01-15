@@ -1,5 +1,8 @@
 package kr.hhplus.be.server.domain.coupon;
 
+import kr.hhplus.be.server.domain.user.User;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface ICouponRepository {
@@ -9,4 +12,5 @@ public interface ICouponRepository {
 
     CouponIssue save(CouponIssue couponIssue);
 
+    List<CouponIssue> findAllByUser(User user);
 }

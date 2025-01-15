@@ -22,12 +22,11 @@ public class PaymentService {
 
 
     @Transactional
-    public OrderInfo pay(PaymentCreateCommand command) {
+    public OrderInfo pay(User user, PaymentCreateCommand command) {
         Order order = orderRepository.findById(command.orderId())
                 .orElseThrow(() -> new ApiException(NOT_FOUND));
 
-        User user = order.getUser();
-        user.pay(order.getPaymentAmount()); // 사용자 포인트 검증 및 차감
+//        user.pay(order.getPaymentAmount()); // 사용자 포인트 검증 및 차감
 
         Payment payment = order.pay();  // 주문 결제 검증 및 결제 정보 생성
         paymentRepository.save(payment);

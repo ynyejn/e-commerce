@@ -31,29 +31,16 @@ class CouponServiceTest {
     private CouponService couponService;
 
     @Test
-    void 쿠폰발급시_사용자가_존재하지_않으면_NOT_FOUND_예외가_발생한다() {
-        // given
-        CouponIssueCommand command = new CouponIssueCommand(1L, 1L);
-        when(userRepository.findById(command.userId())).thenReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> couponService.issueCoupon(command))
-                .isInstanceOf(ApiException.class)
-                .extracting("apiErrorCode")
-                .isEqualTo(NOT_FOUND);
-    }
-
-    @Test
     void 쿠폰발급시_쿠폰이_존재하지_않으면_NOT_FOUND_예외가_발생한다() {
         // given
-        CouponIssueCommand command = new CouponIssueCommand(1L, 1L);
+        CouponIssueCommand command = new CouponIssueCommand(1L);
         User user = User.create("테스트유저");
 
-        when(userRepository.findById(command.userId())).thenReturn(Optional.of(user));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(couponRepository.findByIdWithLock(command.couponId())).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> couponService.issueCoupon(command))
+        assertThatThrownBy(() -> couponService.issueCoupon(user, command))
                 .isInstanceOf(ApiException.class)
                 .extracting("apiErrorCode")
                 .isEqualTo(NOT_FOUND);
@@ -62,29 +49,29 @@ class CouponServiceTest {
     @Test
     void 쿠폰발급_시_DB_제약조건_위반으로_CONFLICT_예외가_발생한다() {
         // given
-        Long userId = 1L;
-        Long couponId = 1L;
-        CouponIssueCommand command = new CouponIssueCommand(userId, couponId);
-
         User user = mock(User.class);
+
+        Long couponId = 1L;
+        CouponIssueCommand command = new CouponIssueCommand(couponId);
+
         Coupon coupon = mock(Coupon.class);
         CouponIssue couponIssue = mock(CouponIssue.class);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(couponRepository.findByIdWithLock(couponId)).thenReturn(Optional.of(coupon));
         when(coupon.issue(user)).thenReturn(couponIssue);
         when(couponRepository.save(any(CouponIssue.class)))
-                .thenThrow(new DataIntegrityViolationException("유니크키 에러"));
+                .thenThrow(new DataIntegrityViolationException("중복 쿠폰 발급 시도"));
 
         // when & then
-        assertThatThrownBy(() -> couponService.issueCoupon(command))
+        assertThatThrownBy(() -> couponService.issueCoupon(user, command))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", ApiErrorCode.CONFLICT);
 
-        verify(userRepository).findById(userId);
+        // 각 메서드가 정확히 호출되었는지 검증합니다
         verify(couponRepository).findByIdWithLock(couponId);
         verify(coupon).issue(user);
         verify(couponRepository).save(couponIssue);
+
     }
 
 }

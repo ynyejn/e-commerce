@@ -9,6 +9,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 
 @Service
@@ -18,8 +21,7 @@ public class CouponService {
     private final IUserRepository userRepository;
 
     @Transactional
-    public CouponInfo issueCoupon(CouponIssueCommand command) {
-        User user = userRepository.findById(command.userId()).orElseThrow(() -> new ApiException(NOT_FOUND));
+    public CouponInfo issueCoupon(User user, CouponIssueCommand command) {
         Coupon coupon = couponRepository.findByIdWithLock(command.couponId()).orElseThrow(() -> new ApiException(NOT_FOUND));
 
         CouponIssue couponIssue = coupon.issue(user);
@@ -29,5 +31,13 @@ public class CouponService {
             throw new ApiException(ApiErrorCode.CONFLICT);
         }
         return CouponInfo.from(couponIssue);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CouponInfo> getCoupons(User user) {
+        List<CouponIssue> couponIssues = couponRepository.findAllByUser(user);
+        return couponIssues.stream()
+                .map(CouponInfo::from)
+                .collect(Collectors.toList());
     }
 }

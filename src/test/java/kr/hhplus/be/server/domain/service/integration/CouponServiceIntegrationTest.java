@@ -3,13 +3,18 @@ package kr.hhplus.be.server.domain.service.integration;
 import kr.hhplus.be.server.domain.coupon.CouponInfo;
 import kr.hhplus.be.server.domain.coupon.CouponIssueCommand;
 import kr.hhplus.be.server.domain.coupon.CouponService;
+import kr.hhplus.be.server.domain.user.IUserRepository;
+import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiException;
+import org.assertj.core.api.AssertionsForClassTypes;
+import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,12 +29,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CouponServiceIntegrationTest {
     @Autowired
     private CouponService couponService;
+    @Autowired
+    private IUserRepository userRepository;
 
 
     @Test
     void 쿠폰_발급이_정상적으로_동작한다() {
+        // given
+        Long userId = 1L;
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
+
         // when
-        CouponInfo couponInfo = couponService.issueCoupon(new CouponIssueCommand(1L, 1L));
+        CouponInfo couponInfo = couponService.issueCoupon(user, new CouponIssueCommand(1L));
 
         // then
         assertThat(couponInfo.couponId()).isEqualTo(1L);
@@ -53,9 +65,12 @@ class CouponServiceIntegrationTest {
         // when
         for (int i = 0; i < threadCount; i++) {
             Long userId = (long) (i + 1);  // 각각 다른 사용자 userId = 2부터 5명
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
+
             executorService.submit(() -> {
                 try {
-                    couponService.issueCoupon(new CouponIssueCommand(userId, couponId));
+                    couponService.issueCoupon(user, new CouponIssueCommand(couponId));
                     successCount.incrementAndGet();
                 } catch (ApiException e) {
                     if (e.getApiErrorCode() == INSUFFICIENT_COUPON) {
@@ -73,5 +88,27 @@ class CouponServiceIntegrationTest {
         latch.await(5, TimeUnit.SECONDS);
         assertThat(successCount.get()).isEqualTo(3);  // 발급 가능 수량
         assertThat(failCount.get()).isEqualTo(2);     // 초과 요청 수
+    }
+
+    @Test
+    void 쿠폰목록_조회시_전체_보유_쿠폰목록이_조회된다() {
+        // given
+        Long userId = 1L;
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
+
+        // when
+        List<CouponInfo> coupons = couponService.getCoupons(user);
+
+        // then
+        AssertionsForInterfaceTypes.assertThat(coupons)
+                .hasSize(2)
+                .element(0)
+                .satisfies(coupon -> {
+                    AssertionsForClassTypes.assertThat(coupon.status()).isEqualTo("사용 완료");
+                    AssertionsForClassTypes.assertThat(coupon.discountType()).isEqualTo("정률");
+                    AssertionsForClassTypes.assertThat(coupon.discountAmount()).isEqualTo(BigDecimal.valueOf(10).setScale(2));
+                    AssertionsForClassTypes.assertThat(coupon.usedAt()).isNotNull();
+                });
     }
 }

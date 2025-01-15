@@ -8,12 +8,11 @@ import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
-import static kr.hhplus.be.server.support.exception.ApiErrorCode.*;
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -27,9 +26,6 @@ public class User extends BaseEntity {
 
     @Column(name = "name", nullable = false)
     private String name;
-
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
-    private Point point;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<CouponIssue> coupons = new ArrayList<>();
@@ -48,18 +44,18 @@ public class User extends BaseEntity {
                 .findFirst()
                 .orElseThrow(() -> new ApiException(NOT_FOUND));
     }
-
-    public Point chargePoint(BigDecimal amount) {
-        if (this.point == null) {
-            this.point = Point.create(this);
-        }
-        return this.point.charge(amount);
-    }
-
-    public void pay(BigDecimal amount) {
-        if (this.point == null) {
-            this.point = Point.create(this);
-        }
-        this.point.use(amount);
-    }
+//
+//    public Point chargePoint(BigDecimal amount) {
+//        if (this.point == null) {
+//            this.point = Point.create(this);
+//        }
+//        return this.point.charge(amount);
+//    }
+//
+//    public void pay(BigDecimal amount) {
+//        if (this.point == null) {
+//            this.point = Point.create(this);
+//        }
+//        this.point.use(amount);
+//    }
 }

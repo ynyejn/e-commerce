@@ -34,34 +34,19 @@ class OrderServiceTest {
     @InjectMocks
     private OrderService orderService;
 
-    @Test
-    void 주문시_사용자가_존재하지_않으면_NOT_FOUND_예외가_발생한다() {
-        // given
-        OrderCreateCommand command = new OrderCreateCommand(1L, List.of(new OrderCreateCommand.OrderItemCommand(1L, 10)), null);
-        when(userRepository.findById(command.userId())).thenReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> orderService.order(command))
-                .isInstanceOf(ApiException.class)
-                .extracting("apiErrorCode")
-                .isEqualTo(NOT_FOUND);
-
-        verify(userRepository).findById(command.userId());
-    }
 
     @Test
     void 주문시_상품이_존재하지_않으면_NOT_FOUND_예외가_발생한다() {
         // given
+        User user = User.create("테스트유저");
         OrderCreateCommand command = new OrderCreateCommand(1L, List.of(new OrderCreateCommand.OrderItemCommand(1L, 10)), null);
-        when(userRepository.findById(command.userId())).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> orderService.order(command))
+        assertThatThrownBy(() -> orderService.order(user, command))
                 .isInstanceOf(ApiException.class)
                 .extracting("apiErrorCode")
                 .isEqualTo(NOT_FOUND);
 
-        verify(userRepository).findById(command.userId());
     }
 
     @Test
@@ -75,7 +60,7 @@ class OrderServiceTest {
         when(productRepository.findByIdWithStock(any())).thenReturn(Optional.of(product));
 
         // when & then
-        assertThatThrownBy(() -> orderService.order(command))
+        assertThatThrownBy(() -> orderService.order(user, command))
                 .isInstanceOf(ApiException.class)
                 .extracting("apiErrorCode")
                 .isEqualTo(NOT_FOUND);

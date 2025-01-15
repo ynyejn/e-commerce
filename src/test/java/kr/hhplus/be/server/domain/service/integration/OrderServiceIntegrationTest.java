@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.service.integration;
 import kr.hhplus.be.server.domain.order.OrderCreateCommand;
 import kr.hhplus.be.server.domain.order.OrderInfo;
 import kr.hhplus.be.server.domain.order.OrderService;
+import kr.hhplus.be.server.domain.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +23,7 @@ class OrderServiceIntegrationTest {
     @Test
     void 주문생성시_재고가_정상적으로_차감되고_주문정보가_생성된다() {
         // given
+        User user = User.create("테스트유저");
         OrderCreateCommand command = new OrderCreateCommand(
                 1L,  // 테스트 유저
                 List.of(new OrderCreateCommand.OrderItemCommand(1L, 10)),  // 테스트상품1 10개
@@ -29,7 +31,7 @@ class OrderServiceIntegrationTest {
         );
 
         // when
-        OrderInfo orderInfo = orderService.order(command);
+        OrderInfo orderInfo = orderService.order(user, command);
 
         // then
         assertThat(orderInfo)
@@ -43,6 +45,7 @@ class OrderServiceIntegrationTest {
     @Test
     void 주문생성시_쿠폰할인이_정상적으로_적용된다() {
         // given
+        User user = User.create("테스트유저");
         OrderCreateCommand command = new OrderCreateCommand(
                 2L,  // 테스트 유저
                 List.of(new OrderCreateCommand.OrderItemCommand(1L, 5)),  // 테스트상품1 5개
@@ -50,7 +53,7 @@ class OrderServiceIntegrationTest {
         );
 
         // when
-        OrderInfo orderInfo = orderService.order(command);
+        OrderInfo orderInfo = orderService.order(user, command);
 
         // then
         assertThat(orderInfo)

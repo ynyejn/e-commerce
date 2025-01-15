@@ -20,12 +20,6 @@ public class UserRepositoryImpl implements IUserRepository {
     }
 
     @Override
-    public Optional<User> findByIdWithPoint(Long id) {
-        return userJpaRepository.findByIdWithPoint(id);
-
-    }
-
-    @Override
     public User save(User user) {
         return userJpaRepository.save(user);
     }

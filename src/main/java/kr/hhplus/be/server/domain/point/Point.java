@@ -1,7 +1,8 @@
-package kr.hhplus.be.server.domain.user;
+package kr.hhplus.be.server.domain.point;
 
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.support.BaseEntity;
+import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiErrorCode;
 import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.AccessLevel;

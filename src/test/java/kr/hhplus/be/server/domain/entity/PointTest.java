@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.domain.entity;
 
-import kr.hhplus.be.server.domain.user.Point;
+import kr.hhplus.be.server.domain.point.Point;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiErrorCode;
 import kr.hhplus.be.server.support.exception.ApiException;

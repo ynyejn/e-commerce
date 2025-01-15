@@ -26,10 +26,7 @@ public class OrderService {
     private final IProductRepository productRepository;
 
     @Transactional
-    public OrderInfo order(OrderCreateCommand command) {
-        User user = userRepository.findById(command.userId())
-                .orElseThrow(() -> new ApiException(NOT_FOUND));
-
+    public OrderInfo order(User user, OrderCreateCommand command) {
         CouponIssue couponIssue = validateCouponIssue(command.couponIssueId(), user);
 
         List<OrderItem> orderItems = command.products().stream()
