@@ -13,4 +13,6 @@ public interface ICouponRepository {
     CouponIssue save(CouponIssue couponIssue);
 
     List<CouponIssue> findAllByUser(User user);
+
+    Optional<CouponIssue> findByCouponIssueId(Long couponIssueId);
 }

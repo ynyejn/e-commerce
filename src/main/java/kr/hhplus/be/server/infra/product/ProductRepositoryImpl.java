@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -56,7 +57,23 @@ public class ProductRepositoryImpl implements IProductRepository {
     }
 
     @Override
+    public List<ProductStock> findAllByIdsWithLock(List<Long> productIds) {
+        return productStockJpaRepository.findAllByIdsWithLock(productIds);
+    }
+
+    @Override
     public ProductStock save(ProductStock productStock) {
         return productStockJpaRepository.save(productStock);
     }
+
+    @Override
+    public List<ProductStock> saveAll(List<ProductStock> stocks) {
+        return productStockJpaRepository.saveAll(stocks);
+    }
+
+    @Override
+    public List<Product> findAllById(List<Long> productIds) {
+        return productJpaRepository.findAllById(productIds);
+    }
+
 }

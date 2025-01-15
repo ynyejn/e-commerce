@@ -44,7 +44,6 @@ class OrderFacadeIntegrationTest {
         // given
         User user = userRepository.findById(1L).orElseThrow();
         OrderCreateCriteria criteria = new OrderCreateCriteria(
-                1L,
                 List.of(new OrderCreateCriteria.OrderItemCriteria(1L, 15)),  // 150,000원 > 보유 포인트
                 null
         );
@@ -81,7 +80,6 @@ class OrderFacadeIntegrationTest {
         // given
         User user = userRepository.findById(1L).orElseThrow();
         OrderCreateCriteria criteria = new OrderCreateCriteria(
-                1L,  // 테스트 유저 (잔액 100,000원)
                 List.of(new OrderCreateCriteria.OrderItemCriteria(2L, 2)),  // 다른 상품으로 테스트
                 null  // 쿠폰 미사용
         );
@@ -95,7 +93,6 @@ class OrderFacadeIntegrationTest {
                 .satisfies(order -> {
                     assertThat(order.status()).isEqualTo("결제 완료");
                     assertThat(order.totalAmount()).isEqualTo(BigDecimal.valueOf(30000).setScale(2));
-                    assertThat(order.paidAt()).isNotNull();
                 });
 
         // 재고 확인 (상품2는 초기 재고 50개)

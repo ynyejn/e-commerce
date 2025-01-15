@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface IProductRepository {
@@ -22,4 +23,9 @@ public interface IProductRepository {
 
     ProductStockHistory save(ProductStockHistory productStockHistory);
 
+    List<Product> findAllById(List<Long> productIds);
+
+    List<ProductStock> findAllByIdsWithLock(List<Long> productIds);
+
+    List<ProductStock> saveAll(List<ProductStock> stocks);
 }

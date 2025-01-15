@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ProductStockJpaRepository extends JpaRepository<ProductStock, Long> {
@@ -14,4 +15,8 @@ public interface ProductStockJpaRepository extends JpaRepository<ProductStock, L
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT ps FROM ProductStock ps WHERE ps.id = :id")
     Optional<ProductStock> findByIdWithLock(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT ps FROM ProductStock ps WHERE ps.id IN :productIds")
+    List<ProductStock> findAllByIdsWithLock(List<Long> productIds);
 }

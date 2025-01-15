@@ -24,8 +24,7 @@ class CouponControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // 테스트에서 사용할 인증 헤더 상수
-    private static final String X_USER_ID = "X-USER-ID";
+    private static final String USER_ID = "USER-ID";
     private static final String TEST_USER_ID = "1";
 
     @Test
@@ -35,7 +34,7 @@ class CouponControllerIntegrationTest {
 
         // when & then
         mockMvc.perform(post("/api/v1/coupons/{couponId}/issue", couponId)
-                        .header(X_USER_ID, TEST_USER_ID)  // 인증 헤더 추가
+                        .header(USER_ID, TEST_USER_ID)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -45,7 +44,7 @@ class CouponControllerIntegrationTest {
     void 내_쿠폰_목록_조회시_200_응답이_반환된다() throws Exception {
         // when & then
         mockMvc.perform(get("/api/v1/coupons/my")
-                        .header(X_USER_ID, TEST_USER_ID))
+                        .header(USER_ID, TEST_USER_ID))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
