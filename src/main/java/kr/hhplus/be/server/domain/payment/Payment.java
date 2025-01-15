@@ -1,8 +1,9 @@
 package kr.hhplus.be.server.domain.payment;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.support.BaseEntity;
+import kr.hhplus.be.server.support.exception.ApiErrorCode;
+import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,11 +27,19 @@ public class Payment extends BaseEntity {
     private BigDecimal paymentAmount;
 
     private Payment(Long orderId, BigDecimal paymentAmount) {
+        validatePaymentAmount(paymentAmount);
+        this.orderId = orderId;
         this.paymentAmount = paymentAmount;
     }
 
     public static Payment create(Long orderId, BigDecimal paymentAmount) {
         return new Payment(orderId, paymentAmount);
+    }
+
+    private void validatePaymentAmount(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ApiException(ApiErrorCode.INVALID_REQUEST);
+        }
     }
 
 }

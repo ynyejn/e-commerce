@@ -35,4 +35,9 @@ public class CouponRepositoryImpl implements ICouponRepository {
     public List<CouponIssue> findAllByUser(User user) {
         return couponIssueJpaRepository.findAllByUser(user);
     }
+
+    @Override
+    public Optional<CouponIssue> findByCouponIssueId(Long couponIssueId) {
+        return couponIssueJpaRepository.findById(couponIssueId);
+    }
 }

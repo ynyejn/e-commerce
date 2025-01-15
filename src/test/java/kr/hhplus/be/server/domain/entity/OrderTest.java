@@ -26,7 +26,9 @@ class OrderTest {
         );
 
         // when
-        Order order = Order.create(user, orderItems);
+        Order order = Order.create(user);
+        orderItems.forEach(order::addOrderItem);
+        order.calculateOrderAmounts();
 
         // then
         assertThat(order.getShippingAmount()).isEqualTo(BigDecimal.valueOf(3000));
@@ -42,7 +44,9 @@ class OrderTest {
         );
 
         // when
-        Order order = Order.create(user, orderItems);
+        Order order = Order.create(user);
+        orderItems.forEach(order::addOrderItem);
+        order.calculateOrderAmounts();
 
         // then
         assertThat(order.getShippingAmount()).isEqualTo(BigDecimal.ZERO);
@@ -59,7 +63,9 @@ class OrderTest {
         );
 
         // when
-        Order order = Order.create(user, orderItems);
+        Order order = Order.create(user);
+        orderItems.forEach(order::addOrderItem);
+        order.calculateOrderAmounts();
 
         // then
         assertThat(order.getItemAmount()).isEqualTo(BigDecimal.valueOf(40000));
@@ -68,32 +74,33 @@ class OrderTest {
     }
 
     @Test
-    void 주문이_결제대기_상태가_아니면_INVALID_REQUEST_예외가_발생한다() {
+    void 주문확정시_결제대기_상태가_아니면_INVALID_REQUEST_예외가_발생한다() {
         // given
         User user = createUser();
         List<OrderItem> orderItems = createOrderItems();
-        Order order = Order.create(user, orderItems);
-        order.pay();
+        Order order = Order.create(user);
+        orderItems.forEach(order::addOrderItem);
+        order.confirm();
 
         // when & then
-        assertThatThrownBy(order::pay)
+        assertThatThrownBy(order::confirm)
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", ApiErrorCode.INVALID_REQUEST);
     }
 
     @Test
-    void 주문이_결제되면_결제정보가_추가되고_주문의_상태가_결제_완료로_변경된다() {
+    void 주문확정되면_주문의_상태가_결제_완료로_변경된다() {
         // given
         User user = createUser();
         List<OrderItem> orderItems = createOrderItems();
-        Order order = Order.create(user, orderItems);
+        Order order = Order.create(user);
+        orderItems.forEach(order::addOrderItem);
 
         // when
-        order.pay();
+        order.confirm();
 
         // then
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);
-        assertThat(order.getPayments()).hasSize(1);
     }
 
     private User createUser() {
