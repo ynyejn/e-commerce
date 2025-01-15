@@ -1,10 +1,7 @@
 package kr.hhplus.be.server.domain.order;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.domain.coupon.Coupon;
-import kr.hhplus.be.server.domain.payment.Payment;
 import kr.hhplus.be.server.domain.support.BaseEntity;
-import kr.hhplus.be.server.domain.coupon.CouponIssue;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.AccessLevel;
@@ -16,7 +13,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static jakarta.persistence.FetchType.LAZY;
@@ -40,10 +36,8 @@ public class Order extends BaseEntity {
             foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private User user;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "coupon_id"
-            ,foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-    private Coupon coupon;
+    @Column(name = "coupon_id")
+    private Long couponId;
 
     @Column(name = "order_no", nullable = false, unique = true, length = 18)
     private String orderNo;
@@ -68,10 +62,8 @@ public class Order extends BaseEntity {
     private BigDecimal paymentAmount;
 
     @OneToMany(mappedBy = "order", fetch = LAZY, cascade = CascadeType.ALL)
-    private List<Payment> payments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "order", fetch = LAZY, cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
+
 
     public enum OrderStatus {
         PENDING("결제 대기"),
@@ -89,33 +81,20 @@ public class Order extends BaseEntity {
         }
     }
 
-
-    private Order(User user, List<OrderItem> orderItems, CouponIssue couponIssue) {
+    private Order(User user) {
         this.user = user;
         this.orderNo = createOrderNo();
         this.status = PENDING;
-        this.orderItems = new ArrayList<>();
-        for (OrderItem orderItem : orderItems) {
-            addOrderItem(orderItem);
-        }
-        this.itemAmount = calculateItemAmounts();
-        this.discountAmount = calculateDiscountAmount(couponIssue);
-        this.shippingAmount = calculateShippingAmount();
-        this.totalAmount = this.itemAmount.add(this.shippingAmount);
-        this.paymentAmount = this.totalAmount.subtract(this.discountAmount);
-
-        if (couponIssue != null) {
-            this.coupon = couponIssue.getCoupon();
-            couponIssue.use();
-        }
+        this.discountAmount = BigDecimal.ZERO;
+        this.itemAmount = BigDecimal.ZERO;
+        this.shippingAmount = BigDecimal.ZERO;
+        this.totalAmount = BigDecimal.ZERO;
+        this.paymentAmount = BigDecimal.ZERO;
+        this.couponId = null;
     }
 
-    public static Order create(User user, List<OrderItem> orderItems) {
-        return new Order(user, orderItems, null);
-    }
-
-    public static Order create(User user, List<OrderItem> orderItems, CouponIssue couponIssue) {
-        return new Order(user, orderItems, couponIssue);
+    public static Order create(User user) {
+        return new Order(user);
     }
 
     private static String createOrderNo() {
@@ -123,9 +102,22 @@ public class Order extends BaseEntity {
                 + String.format("%04d", ThreadLocalRandom.current().nextInt(10000));
     }
 
-    private void addOrderItem(OrderItem orderItem) {
+    public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
+    }
+
+    public void calculateOrderAmounts() {
+        this.itemAmount = calculateItemAmounts();
+        this.shippingAmount = calculateShippingAmount();
+        this.totalAmount = this.itemAmount.add(this.shippingAmount);
+        this.paymentAmount = this.totalAmount.subtract(this.discountAmount);
+    }
+
+    public void applyCoupon(Long couponIssueId, BigDecimal discountAmount) {
+        this.discountAmount = discountAmount;
+        this.paymentAmount = this.totalAmount.subtract(this.discountAmount);
+        this.couponId = couponIssueId;
     }
 
     private BigDecimal calculateItemAmounts() {
@@ -142,26 +134,11 @@ public class Order extends BaseEntity {
         }
     }
 
-    private BigDecimal calculateDiscountAmount(CouponIssue couponIssue) {
-        if (couponIssue == null) {
-            return BigDecimal.ZERO;
-        }
-        return couponIssue.calculateDiscountAmount(this.itemAmount);
-    }
-
-    public Payment pay() {
+    public void confirm() {
         if (this.status != OrderStatus.PENDING) {
             throw new ApiException(INVALID_REQUEST);
         }
         this.status = OrderStatus.PAID;
-        Payment payment = Payment.create(this, this.paymentAmount);
-        addPayment(payment);
-        return payment;
-    }
-
-    private void addPayment(Payment payment) {
-        this.payments.add(payment);
-        payment.setOrder(this);
     }
 
     public int getTotalQuantity() {
@@ -170,11 +147,4 @@ public class Order extends BaseEntity {
                 .sum();
     }
 
-    public LocalDateTime getPaidAt() {
-        return payments.stream()
-                .map(Payment::getCreatedAt)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
-    }
 }

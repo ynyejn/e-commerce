@@ -19,24 +19,18 @@ public class Payment extends BaseEntity {
     @Id @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id",
-            foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-    private Order order;
+    @Column(name = "order_id", nullable = false)
+    private Long orderId;
 
     @Column(name = "payment_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal paymentAmount;
 
-    private Payment(Order order, BigDecimal paymentAmount) {
-        this.order = order;
+    private Payment(Long orderId, BigDecimal paymentAmount) {
         this.paymentAmount = paymentAmount;
     }
 
-    public static Payment create(Order order, BigDecimal paymentAmount) {
-        return new Payment(order, paymentAmount);
+    public static Payment create(Long orderId, BigDecimal paymentAmount) {
+        return new Payment(orderId, paymentAmount);
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
-    }
 }
