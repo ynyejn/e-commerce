@@ -30,18 +30,19 @@ public class OrderFacade {
     public OrderResult order(User user, OrderCreateCriteria criteria) {
         // 상품 검증
         List<ValidatedProductInfo> validateProducts = productService.validateProducts(criteria.toOrderItemCommands());
+
         // 주문 생성
         OrderInfo orderInfo = orderService.order(user, criteria.toOrderCommand(validateProducts));
-        // 쿠폰 사용
+
+        // 쿠폰 사용 및 할인 적용
         CouponDiscountInfo discountInfo = couponService.use(user, criteria.couponIssueId(), orderInfo.totalAmount());
-        // 쿠폰 적용(할인 정보를 주문에도 저장하기 위함)
-        orderInfo = orderService.applyCoupon(orderInfo.orderId(), discountInfo.couponIssueId(),discountInfo.discountAmount());
-        // 결제
+        orderInfo = orderService.applyCoupon(orderInfo.orderId(), discountInfo.couponIssueId(), discountInfo.discountAmount());
+
+        // 결제, 포인트 차감, 재고 차감
         paymentService.pay(user, PaymentCreateCommand.from(orderInfo.orderId(), orderInfo.paymentAmount()));
-        // 포인트 차감
         pointService.use(user, orderInfo.paymentAmount());
-        // 재고 차감
         productService.deductStock(criteria.toOrderItemCommands());
+
         // 주문 확정
         orderInfo = orderService.confirm(OrderConfirmCommand.from(orderInfo.orderId()));
 
