@@ -10,73 +10,40 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Slf4j
-@Component
 public class LoggingFilter implements Filter {
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
+        // Request, Response를 ContentCachingWrapper로 감싸서 content를 여러번 읽을 수 있도록 함
+        ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper((HttpServletRequest) request);
+        ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper((HttpServletResponse) response);
+
         String requestId = UUID.randomUUID().toString();
-        MDC.put("requestId", requestId);  // 요청 ID 설정
+        MDC.put("requestId", requestId);
 
-        try {
-            HttpServletRequest httpRequest = (HttpServletRequest) request;
-            HttpServletResponse httpResponse = (HttpServletResponse) response;
+        // 먼저 실제 요청 처리
+        chain.doFilter(requestWrapper, responseWrapper);
 
-            // request 로깅
-            String requestBody = getRequestBody(httpRequest);
-            log.info("Request: {} {} body={}",
-                    httpRequest.getMethod(),
-                    httpRequest.getRequestURI(),
-                    requestBody
-            );
-
-            // Response를 캡처하기 위한 래퍼
-            ContentCachingResponseWrapper responseWrapper =
-                    new ContentCachingResponseWrapper(httpResponse);
-
-            // 실제 요청 처리
-            chain.doFilter(request, responseWrapper);
-
-            // response 로깅
-            String responseBody = getResponseBody(responseWrapper);
-            log.info("Response: {} {} body={}",
-                    httpRequest.getMethod(),
-                    httpRequest.getRequestURI(),
-                    responseBody
-            );
-
-            // 응답 데이터 복원
-            responseWrapper.copyBodyToResponse();
-
-        } finally {
-            MDC.clear();  // MDC 정리
-        }
-    }
-
-    private String getRequestBody(HttpServletRequest request) throws IOException {
-        // POST, PUT 등의 요청에만 바디를 읽음
-        if (!isReadableHttpMethod(request.getMethod())) {
-            return "";
+        // 그 다음 Request 로깅 (이제 content를 읽을 수 있음)
+        if (!requestWrapper.getMethod().equals("GET")) {
+            String requestBody = new String(requestWrapper.getContentAsByteArray(), StandardCharsets.UTF_8);
+            log.info("Request: {} {} body={}", requestWrapper.getMethod(), requestWrapper.getRequestURI(), requestBody);
+        } else {
+            log.info("Request: {} {}", requestWrapper.getMethod(), requestWrapper.getRequestURI());
         }
 
-        ContentCachingRequestWrapper requestWrapper =
-            new ContentCachingRequestWrapper(request);
-        return new String(requestWrapper.getContentAsByteArray());
+        // Response 로깅
+        String responseBody = new String(responseWrapper.getContentAsByteArray(), StandardCharsets.UTF_8);
+        log.info("Response: {} {} body={}", requestWrapper.getMethod(), requestWrapper.getRequestURI(), responseBody);
+
+        responseWrapper.copyBodyToResponse();
+        MDC.clear();
     }
 
-    private String getResponseBody(ContentCachingResponseWrapper response) {
-        byte[] buf = response.getContentAsByteArray();
-        return new String(buf, StandardCharsets.UTF_8);
-    }
-
-    private boolean isReadableHttpMethod(String method) {
-        return method.equals("POST") || method.equals("PUT") || 
-               method.equals("PATCH") || method.equals("DELETE");
-    }
 }
