@@ -1,28 +1,26 @@
 package kr.hhplus.be.server.domain.entity;
 
 
-import kr.hhplus.be.server.domain.constant.DiscountType;
-import kr.hhplus.be.server.domain.coupon.entity.Coupon;
-import kr.hhplus.be.server.domain.coupon.entity.CouponIssue;
-import kr.hhplus.be.server.domain.order.entity.Order;
-import kr.hhplus.be.server.domain.user.entity.User;
+import kr.hhplus.be.server.domain.coupon.Coupon;
+import kr.hhplus.be.server.domain.coupon.Coupon.DiscountType;
+import kr.hhplus.be.server.domain.coupon.CouponIssue;
+import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiErrorCode;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.N;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-import static kr.hhplus.be.server.domain.constant.CouponStatus.*;
+import static kr.hhplus.be.server.domain.coupon.CouponIssue.CouponStatus.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.BDDAssertions.within;
-import static org.mockito.Mockito.mock;
 
 class CouponIssueTest {
 
@@ -52,11 +50,12 @@ class CouponIssueTest {
         @Test
         void 쿠폰사용검증시_이미_사용된_쿠폰이면_INVALID_REQUEST_예외가_발생한다() {
             // given
+            User user = User.create("테스트 유저");
             CouponIssue couponIssue = createCouponIssue();
             ReflectionTestUtils.setField(couponIssue, "usedAt", LocalDateTime.now());
 
             // when & then
-            assertThatThrownBy(() -> couponIssue.validateUseable())
+            assertThatThrownBy(() -> couponIssue.validateUseable(user))
                     .isInstanceOf(ApiException.class)
                     .extracting("apiErrorCode")
                     .isEqualTo(ApiErrorCode.INVALID_REQUEST);
@@ -65,11 +64,12 @@ class CouponIssueTest {
         @Test
         void 쿠폰검증시_만료된_쿠폰이면_INVALID_REQUEST_예외가_발생한다() {
             // given
+            User user = User.create("테스트 유저");
             CouponIssue couponIssue = createCouponIssue();
             ReflectionTestUtils.setField(couponIssue, "expiredAt", LocalDateTime.now().minusDays(1));
 
             // when & then
-            assertThatThrownBy(() -> couponIssue.validateUseable())
+            assertThatThrownBy(() -> couponIssue.validateUseable(user))
                     .isInstanceOf(ApiException.class)
                     .extracting("apiErrorCode")
                     .isEqualTo(ApiErrorCode.INVALID_REQUEST);
@@ -118,6 +118,7 @@ class CouponIssueTest {
     @Test
     void 쿠폰상태_조회시_상황에_따라_적절한_상태가_반환된다() {
         // given
+        User user = User.create("테스트유저");
         CouponIssue unusedCoupon = createCouponIssue();
         ReflectionTestUtils.setField(unusedCoupon, "expiredAt", LocalDateTime.now().plusDays(1));
 
@@ -125,7 +126,7 @@ class CouponIssueTest {
         ReflectionTestUtils.setField(expiredCoupon, "expiredAt", LocalDateTime.now().minusDays(1));
 
         CouponIssue usedCoupon = createCouponIssue();
-        usedCoupon.use();
+        usedCoupon.use(user);
 
         // when & then
         assertThat(unusedCoupon.getStatus()).isEqualTo(UNUSED.getDescription());
