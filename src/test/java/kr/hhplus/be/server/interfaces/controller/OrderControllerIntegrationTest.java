@@ -21,24 +21,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Sql(scripts = {"/cleanup.sql", "/test-data.sql"})
 class OrderControllerIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+    private static final String USER_ID = "USER-ID";
+    private static final String TEST_USER_ID = "1";
+
     @Test
     void 주문_생성_요청이_성공하면_200_응답이_반환된다() throws Exception {
         // given
         OrderCreateRequest request = new OrderCreateRequest(
-                1L,
                 List.of(new OrderCreateRequest.OrderProductRequest(1L, 1)),
                 null
         );
 
         // when & then
         mockMvc.perform(post("/api/v1/orders")
+                        .header(USER_ID, TEST_USER_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
