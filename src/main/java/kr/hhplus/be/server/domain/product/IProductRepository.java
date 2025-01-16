@@ -17,7 +17,7 @@ public interface IProductRepository {
 
     Page<Product> findAllProducts(Pageable pageable);
 
-    Optional<ProductStock> findByIdWithLock(Long id);
+    Optional<ProductStock> findByProductIdWithLock(Long id);
 
     ProductStock save(ProductStock productStock);
 
@@ -25,7 +25,9 @@ public interface IProductRepository {
 
     List<Product> findAllById(List<Long> productIds);
 
-    List<ProductStock> findAllByIdsWithLock(List<Long> productIds);
+    List<ProductStock> findAllByProductIdsWithLock(List<Long> productIds);
 
     List<ProductStock> saveAll(List<ProductStock> stocks);
+
+    Optional<ProductStock> findByProductId(Long productId);
 }

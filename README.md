@@ -259,7 +259,10 @@ sequenceDiagram
 ![img.png](docs/erd.png)
 
 ## 📝️ API 명세
-[SwaggerHub API 문서](https://app.swaggerhub.com/apis/yeounshi/ecommerce-api/v0.0.1#/)
+[SwaggerHub API 문서](https://app.swaggerhub.com/apis-docs/yeounshi/ecommerce-api/v0.0.1#/)
+
+## 💭 회고
+[회고록](docs/review.md)
 
 ## Getting Started
 

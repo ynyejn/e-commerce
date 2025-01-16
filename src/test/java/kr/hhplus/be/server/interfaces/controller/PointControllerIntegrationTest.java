@@ -2,6 +2,7 @@ package kr.hhplus.be.server.interfaces.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.interfaces.point.PointChargeRequest;
+import kr.hhplus.be.server.support.exception.ApiErrorCode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,20 +22,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Sql(scripts = {"/cleanup.sql", "/test-data.sql"})
-class UserControllerIntegrationTest {
+class PointControllerIntegrationTest {
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+    private static final String USER_ID = "USER-ID";
+    private static final String TEST_USER_ID = "1";
+
     @Test
-    void 포인트_충전시_200_응답이_반환된다() throws Exception {
+    void 인증된_사용자의_포인트_충전시_200_응답이_반환된다() throws Exception {
         // given
         PointChargeRequest request = new PointChargeRequest(BigDecimal.valueOf(10000));
 
         // when & then
-        mockMvc.perform(put("/api/v1/users/1/point")
+        mockMvc.perform(put("/api/v1/points")
+                        .header(USER_ID, TEST_USER_ID)  // 인증 헤더 추가
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -43,17 +49,38 @@ class UserControllerIntegrationTest {
     }
 
     @Test
-    void 포인트_조회시_200_응답이_반환된다() throws Exception {
-        mockMvc.perform(get("/api/v1/users/1/point"))
+    void 인증되지_않은_사용자의_포인트_충전_요청시_401_응답이_반환된다() throws Exception {
+        // given
+        PointChargeRequest request = new PointChargeRequest(BigDecimal.valueOf(10000));
+
+        // when & then
+        mockMvc.perform(put("/api/v1/points")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andDo(print());
+    }
+
+    @Test
+    void 인증된_사용자의_포인트_조회시_200_응답이_반환된다() throws Exception {
+        // when & then
+        mockMvc.perform(get("/api/v1/points")
+                        .header(USER_ID, TEST_USER_ID))  // 인증 헤더 추가
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.point").exists())
                 .andDo(print());
     }
 
     @Test
-    void 쿠폰_목록_조회시_200_응답이_반환된다() throws Exception {
-        mockMvc.perform(get("/api/v1/users/1/coupons"))
-                .andExpect(status().isOk())
+    void 인증되지_않은_사용자의_포인트_조회_요청시_401_응답이_반환된다() throws Exception {
+        // given
+        PointChargeRequest request = new PointChargeRequest(BigDecimal.valueOf(10000));
+
+        // when & then
+        mockMvc.perform(put("/api/v1/points")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 }

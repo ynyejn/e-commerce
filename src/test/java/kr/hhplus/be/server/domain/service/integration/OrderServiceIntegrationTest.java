@@ -1,9 +1,11 @@
 package kr.hhplus.be.server.domain.service.integration;
 
-import kr.hhplus.be.server.domain.order.OrderCreateCommand;
-import kr.hhplus.be.server.domain.order.OrderInfo;
-import kr.hhplus.be.server.domain.order.OrderService;
+import kr.hhplus.be.server.domain.order.*;
+import kr.hhplus.be.server.domain.product.IProductRepository;
+import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.user.IUserRepository;
 import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,52 +14,124 @@ import org.springframework.test.context.jdbc.Sql;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @SpringBootTest
 @Sql(scripts = {"/cleanup.sql", "/test-data.sql"})
 class OrderServiceIntegrationTest {
+
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private IUserRepository userRepository;
+
+    @Autowired
+    private IOrderRepository orderRepository;
+
+    @Autowired
+    private IProductRepository productRepository;
+
     @Test
-    void 주문생성시_재고가_정상적으로_차감되고_주문정보가_생성된다() {
+    void 주문_생성시_주문정보가_정상적으로_생성된다() {
         // given
-        User user = User.create("테스트유저");
-        OrderCreateCommand command = new OrderCreateCommand(
-                List.of(new OrderCreateCommand.OrderItemCommand(1L, null,10)),  // 테스트상품1 10개
-                null  // 쿠폰 미사용
-        );
+        User user = userRepository.save(User.create("테스트유저"));
+
+        // test-data.sql
+        Product product = productRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
+
+        OrderCreateCommand command = new OrderCreateCommand(List.of(new OrderCreateCommand.OrderItemCommand(product.getId(), product, 10)), null);
 
         // when
         OrderInfo orderInfo = orderService.order(user, command);
 
         // then
-        assertThat(orderInfo)
-                .isNotNull()
-                .satisfies(info -> {
-                    assertThat(info.status()).isEqualTo("결제 대기");
-                    assertThat(info.totalAmount()).isEqualTo(BigDecimal.valueOf(100000).setScale(2));  // 10개 * 10000원
-                });
+        assertThat(orderInfo).isNotNull();
+        assertThat(orderInfo.status()).isEqualTo("결제 대기");
+        assertThat(orderInfo.paymentAmount()).isEqualTo(BigDecimal.valueOf(100000).setScale(2));
+        assertThat(orderInfo.totalAmount()).isEqualTo(BigDecimal.valueOf(100000).setScale(2));
+
+        Order savedOrder = orderRepository.findById(orderInfo.orderId())
+                .orElseThrow(() -> new RuntimeException("주문이 저장되지 않았습니다."));
+        assertThat(savedOrder.getStatus()).isEqualTo(Order.OrderStatus.PENDING);
     }
 
     @Test
-    void 주문생성시_쿠폰할인이_정상적으로_적용된다() {
+    void 쿠폰_적용시_할인금액이_정상적으로_반영된다() {
         // given
-        User user = User.create("테스트유저");
-        OrderCreateCommand command = new OrderCreateCommand(
-                List.of(new OrderCreateCommand.OrderItemCommand(1L, null,5)),  // 테스트상품1 5개
-                3L   // 정액할인 쿠폰 (5000원)
-        );
+        User user = userRepository.save(User.create("테스트유저"));
+        Product product = productRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
 
-        // when
+        OrderCreateCommand command = new OrderCreateCommand(List.of(new OrderCreateCommand.OrderItemCommand(product.getId(), product, 5)), null);
         OrderInfo orderInfo = orderService.order(user, command);
 
+        // when
+        OrderInfo discountedOrder = orderService.applyCoupon(
+                orderInfo.orderId(),
+                1L,
+                BigDecimal.valueOf(5000)
+        );
+
         // then
-        assertThat(orderInfo)
-                .isNotNull()
-                .satisfies(info -> {
-                    assertThat(info.totalAmount()).isEqualTo(BigDecimal.valueOf(45000).setScale(2));  // 5개 * 10000원 - 5000원
-                });
+        assertThat(discountedOrder).isNotNull();
+        assertThat(discountedOrder.totalAmount()).isEqualTo(BigDecimal.valueOf(50000).setScale(2));
+        assertThat(discountedOrder.paymentAmount())
+                .isEqualTo(BigDecimal.valueOf(45000).setScale(2));
     }
+
+    @Test
+    void 주문_확정시_상태가_변경되고_이벤트가_발행된다() {
+        // given
+        User user = userRepository.save(User.create("테스트유저"));
+        Product product = productRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
+
+        OrderCreateCommand command = new OrderCreateCommand(List.of(new OrderCreateCommand.OrderItemCommand(product.getId(), product, 1)), null);
+        OrderInfo orderInfo = orderService.order(user, command);
+
+        // when
+        OrderInfo confirmedOrder = orderService.confirm(
+                new OrderConfirmCommand(orderInfo.orderId())
+        );
+
+        // then
+        assertThat(confirmedOrder).isNotNull();
+        assertThat(confirmedOrder.status()).isEqualTo("결제 완료");
+
+        Order savedOrder = orderRepository.findById(confirmedOrder.orderId())
+                .orElseThrow(() -> new RuntimeException("주문이 존재하지 않습니다."));
+        assertThat(savedOrder.getStatus()).isEqualTo(Order.OrderStatus.PAID);
+    }
+
+    @Test
+    void 존재하지_않는_주문_확정시_NOT_FOUND_예외가_발생한다() {
+        // given
+        Long nonExistentOrderId = 999L;
+
+        // when & then
+        assertThatThrownBy(() ->
+                orderService.confirm(new OrderConfirmCommand(nonExistentOrderId))
+        )
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("apiErrorCode", NOT_FOUND);
+    }
+
+    @Test
+    void 존재하지_않는_주문에_쿠폰적용시_NOT_FOUND_예외가_발생한다() {
+        // given
+        Long nonExistentOrderId = 999L;
+
+        // when & then
+        assertThatThrownBy(() ->
+                orderService.applyCoupon(nonExistentOrderId, 1L, BigDecimal.valueOf(5000))
+        )
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("apiErrorCode", NOT_FOUND);
+
+    }
+
 }

@@ -59,16 +59,22 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void deductStock(List<OrderCreateCommand.OrderItemCommand> commands) {
         List<Long> productIds = commands.stream()
                 .map(OrderCreateCommand.OrderItemCommand::productId)
                 .collect(Collectors.toList());
 
         // in with lock
-        List<ProductStock> stocks = productRepository.findAllByIdsWithLock(productIds);
+        List<ProductStock> stocks = productRepository.findAllByProductIdsWithLock(productIds);
+
+        if (stocks.size() != productIds.size()) {
+            throw new ApiException(NOT_FOUND);
+        }
 
         Map<Long, ProductStock> stockMap = stocks.stream()
-                .collect(Collectors.toMap(ProductStock::getId, stock -> stock));
+                .collect(Collectors.toMap(stock -> stock.getProduct().getId(), stock -> stock));
+
 
         for (OrderCreateCommand.OrderItemCommand command : commands) {
             ProductStock stock = stockMap.get(command.productId());

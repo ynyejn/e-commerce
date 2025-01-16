@@ -113,19 +113,41 @@ class CouponIssueTest {
                     .extracting("apiErrorCode")
                     .isEqualTo(ApiErrorCode.INVALID_REQUEST);
         }
+        @Test
+        void 쿠폰검증시_발급받은_사용자가_아니면_INVALID_REQUEST_예외가_발생한다() {
+            // given
+            User originalUser = User.create("원래 사용자");
+            User differentUser = User.create("다른 사용자");
+            ReflectionTestUtils.setField(originalUser, "id", 1L);
+            ReflectionTestUtils.setField(differentUser, "id", 2L);
+
+            CouponIssue couponIssue = createCouponIssue();
+            ReflectionTestUtils.setField(couponIssue, "user", originalUser);
+
+            // when & then
+            assertThatThrownBy(() -> couponIssue.validateUseable(differentUser))
+                    .isInstanceOf(ApiException.class)
+                    .extracting("apiErrorCode")
+                    .isEqualTo(ApiErrorCode.INVALID_REQUEST);
+        }
     }
 
     @Test
     void 쿠폰상태_조회시_상황에_따라_적절한_상태가_반환된다() {
         // given
         User user = User.create("테스트유저");
+        ReflectionTestUtils.setField(user, "id", 1L);
+
         CouponIssue unusedCoupon = createCouponIssue();
         ReflectionTestUtils.setField(unusedCoupon, "expiredAt", LocalDateTime.now().plusDays(1));
+        ReflectionTestUtils.setField(unusedCoupon, "user", user);
 
         CouponIssue expiredCoupon = createCouponIssue();
         ReflectionTestUtils.setField(expiredCoupon, "expiredAt", LocalDateTime.now().minusDays(1));
+        ReflectionTestUtils.setField(expiredCoupon, "user", user);
 
         CouponIssue usedCoupon = createCouponIssue();
+        ReflectionTestUtils.setField(usedCoupon, "user", user);
         usedCoupon.use(user);
 
         // when & then
