@@ -40,7 +40,7 @@ public class CouponService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CouponDiscountInfo use(User user, Long couponIssueId, BigDecimal totalAmount) {
         if (couponIssueId == null) {
             return new CouponDiscountInfo(null, BigDecimal.ZERO);
