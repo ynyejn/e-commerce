@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.domain.entity;
 
-import kr.hhplus.be.server.domain.product.entity.Product;
-import kr.hhplus.be.server.domain.product.entity.ProductStock;
+import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.product.ProductStock;
 import kr.hhplus.be.server.support.exception.ApiErrorCode;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ class ProductStockTest {
         ProductStock productStock = ProductStock.create(product);
 
         // when & then
-        assertThatThrownBy(() -> productStock.allocateStock(1))
+        assertThatThrownBy(() -> productStock.deduct(1))
                 .isInstanceOf(ApiException.class)
                 .extracting("apiErrorCode")
                 .isEqualTo(ApiErrorCode.INSUFFICIENT_STOCK);
@@ -47,7 +47,7 @@ class ProductStockTest {
         ReflectionTestUtils.setField(productStock, "quantity", 10);
 
         // when
-        productStock.allocateStock(3);
+        productStock.deduct(3);
 
         // then
         assertThat(productStock.getQuantity()).isEqualTo(7);
