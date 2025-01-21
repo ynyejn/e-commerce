@@ -23,11 +23,9 @@ public class OrderService {
     @Transactional
     public OrderInfo order(User user, OrderCreateCommand command) {
         Order order = Order.create(user);
-        List<OrderItem> orderItems = command.products().stream()
+        command.products().stream()
                 .map(item -> OrderItem.create(item.product(), item.quantity()))
-                .collect(Collectors.toList());
-
-        orderItems.forEach(order::addOrderItem);
+                .forEach(order::addOrderItem);
 
         order.calculateOrderAmounts();
         orderRepository.save(order);
