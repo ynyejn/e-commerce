@@ -13,10 +13,13 @@ import java.util.Optional;
 public interface ProductStockJpaRepository extends JpaRepository<ProductStock, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT ps FROM ProductStock ps WHERE ps.id = :id")
-    Optional<ProductStock> findByIdWithLock(@Param("id") Long id);
+    @Query("SELECT ps FROM ProductStock ps left join ps.product p WHERE p.id = :productId")
+    Optional<ProductStock> findByProductIdWithLock(@Param("productId") Long productId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT ps FROM ProductStock ps WHERE ps.id IN :productIds")
-    List<ProductStock> findAllByIdsWithLock(List<Long> productIds);
+    @Query("SELECT ps FROM ProductStock ps left join ps.product p WHERE p.id IN :productIds")
+    List<ProductStock> findAllByProductIdsWithLock(@Param("productIds") List<Long> productIds);
+
+    @Query("SELECT ps FROM ProductStock ps left join ps.product p WHERE p.id = :productId")
+    Optional<ProductStock> findByProductId(@Param("productId") Long productId);
 }

@@ -52,13 +52,13 @@ public class ProductRepositoryImpl implements IProductRepository {
     }
 
     @Override
-    public Optional<ProductStock> findByIdWithLock(Long id) {
-        return productStockJpaRepository.findByIdWithLock(id);
+    public Optional<ProductStock> findByProductIdWithLock(Long id) {
+        return productStockJpaRepository.findByProductIdWithLock(id);
     }
 
     @Override
-    public List<ProductStock> findAllByIdsWithLock(List<Long> productIds) {
-        return productStockJpaRepository.findAllByIdsWithLock(productIds);
+    public List<ProductStock> findAllByProductIdsWithLock(List<Long> productIds) {
+        return productStockJpaRepository.findAllByProductIdsWithLock(productIds);
     }
 
     @Override
@@ -74,6 +74,11 @@ public class ProductRepositoryImpl implements IProductRepository {
     @Override
     public List<Product> findAllById(List<Long> productIds) {
         return productJpaRepository.findAllById(productIds);
+    }
+
+    @Override
+    public Optional<ProductStock> findByProductId(Long productId) {
+        return productStockJpaRepository.findByProductId(productId);
     }
 
 }
