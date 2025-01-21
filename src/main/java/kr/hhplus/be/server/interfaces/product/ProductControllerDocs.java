@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.hhplus.be.server.support.exception.ErrorResponse;
-import kr.hhplus.be.server.support.response.PageResultResponse;
+import kr.hhplus.be.server.interfaces.support.response.PageResultResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 

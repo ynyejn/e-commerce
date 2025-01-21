@@ -2,7 +2,7 @@ package kr.hhplus.be.server.interfaces.product;
 
 
 import kr.hhplus.be.server.domain.product.ProductService;
-import kr.hhplus.be.server.support.response.PageResultResponse;
+import kr.hhplus.be.server.interfaces.support.response.PageResultResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
