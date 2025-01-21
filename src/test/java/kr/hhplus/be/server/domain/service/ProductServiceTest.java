@@ -1,12 +1,7 @@
 package kr.hhplus.be.server.domain.service;
 
-import kr.hhplus.be.server.domain.order.repository.IOrderRepository;
-import kr.hhplus.be.server.domain.product.dto.info.PopularProductInfo;
-import kr.hhplus.be.server.domain.product.dto.info.ProductInfo;
-import kr.hhplus.be.server.domain.product.entity.Product;
-import kr.hhplus.be.server.domain.product.repository.IProductRepository;
-import kr.hhplus.be.server.domain.product.repository.IProductStockRepository;
-import kr.hhplus.be.server.domain.product.service.ProductService;
+import kr.hhplus.be.server.domain.order.IOrderRepository;
+import kr.hhplus.be.server.domain.product.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,10 +11,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import java.util.List;
 
 
 
@@ -29,9 +26,6 @@ class ProductServiceTest {
 
     @Mock
     private IProductRepository productRepository;
-
-    @Mock
-    private IProductStockRepository productStockRepository;
 
     @Mock
     private IOrderRepository orderRepository;
