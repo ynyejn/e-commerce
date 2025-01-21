@@ -1,10 +1,12 @@
 package kr.hhplus.be.server.domain.service.integration;
 
+import kr.hhplus.be.server.domain.coupon.CouponDiscountInfo;
 import kr.hhplus.be.server.domain.coupon.CouponInfo;
 import kr.hhplus.be.server.domain.coupon.CouponIssueCommand;
 import kr.hhplus.be.server.domain.coupon.CouponService;
 import kr.hhplus.be.server.domain.user.IUserRepository;
 import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.support.exception.ApiErrorCode;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.assertj.core.api.AssertionsForInterfaceTypes;
@@ -23,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.INSUFFICIENT_COUPON;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @SpringBootTest
 @Sql(scripts = {"/cleanup.sql", "/test-data.sql"})
@@ -34,21 +37,37 @@ class CouponServiceIntegrationTest {
 
 
     @Test
-    void 쿠폰_발급이_정상적으로_동작한다() {
+    void 쿠폰발급_후_목록_조회시_발급된_쿠폰이_조회된다() {
         // given
         Long userId = 1L;
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
 
         // when
-        CouponInfo couponInfo = couponService.issueCoupon(user, new CouponIssueCommand(1L));
+        // 쿠폰 발급
+        CouponInfo issuedCoupon = couponService.issueCoupon(user, new CouponIssueCommand(1L));
+        // 쿠폰 목록 조회
+        List<CouponInfo> coupons = couponService.getCoupons(user);
 
         // then
-        assertThat(couponInfo.couponId()).isEqualTo(1L);
-        assertThat(couponInfo.discountType()).isEqualTo("정률");
-        assertThat(couponInfo.discountAmount()).isEqualTo(BigDecimal.valueOf(10).setScale(2));
-        assertThat(couponInfo.status()).isEqualTo("미사용");
+        // 발급된 쿠폰 정보 검증
+        assertThat(issuedCoupon.couponId()).isEqualTo(1L);
+        assertThat(issuedCoupon.discountType()).isEqualTo("정률");
+        assertThat(issuedCoupon.discountAmount()).isEqualTo(BigDecimal.valueOf(10).setScale(2));
+        assertThat(issuedCoupon.status()).isEqualTo("미사용");
 
+        // 조회된 쿠폰 목록 검증
+        assertThat(coupons)
+                .isNotEmpty()
+                .hasSize(2)
+                .element(0)
+                .satisfies(coupon -> {
+                    assertThat(coupon.couponId()).isEqualTo(1L);
+                    assertThat(coupon.status()).isEqualTo("미사용");
+                    assertThat(coupon.discountType()).isEqualTo("정률");
+                    assertThat(coupon.discountAmount()).isEqualTo(BigDecimal.valueOf(10).setScale(2));
+                    assertThat(coupon.usedAt()).isNull();
+                });
     }
 
 
@@ -91,24 +110,38 @@ class CouponServiceIntegrationTest {
     }
 
     @Test
-    void 쿠폰목록_조회시_전체_보유_쿠폰목록이_조회된다() {
+    void 쿠폰_사용시_할인금액이_정상적으로_계산된다() {
         // given
-        Long userId = 1L;
+        Long userId = 3L;
+        Long couponIssueId = 2L;  // 미사용 상태의 쿠폰
+        BigDecimal orderAmount = BigDecimal.valueOf(100000);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
 
         // when
-        List<CouponInfo> coupons = couponService.getCoupons(user);
+        CouponDiscountInfo discountInfo = couponService.use(user, couponIssueId, orderAmount);
 
         // then
-        AssertionsForInterfaceTypes.assertThat(coupons)
-                .hasSize(2)
-                .element(0)
-                .satisfies(coupon -> {
-                    AssertionsForClassTypes.assertThat(coupon.status()).isEqualTo("사용 완료");
-                    AssertionsForClassTypes.assertThat(coupon.discountType()).isEqualTo("정률");
-                    AssertionsForClassTypes.assertThat(coupon.discountAmount()).isEqualTo(BigDecimal.valueOf(10).setScale(2));
-                    AssertionsForClassTypes.assertThat(coupon.usedAt()).isNotNull();
-                });
+        assertThat(discountInfo.couponIssueId()).isEqualTo(couponIssueId);
+        assertThat(discountInfo.discountAmount()).isEqualTo(BigDecimal.valueOf(10000).setScale(2));  // 10% 할인
+    }
+
+    @Test
+    void 이미_사용한_쿠폰을_사용하면_예외가_발생한다() {
+        // given
+        Long userId = 2L;
+        Long usedCouponIssueId = 1L;  // 이미 사용된 쿠폰
+        BigDecimal orderAmount = BigDecimal.valueOf(100000);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
+
+        // when & then
+        assertThatThrownBy(() ->
+                couponService.use(user, usedCouponIssueId, orderAmount)
+        )
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("apiErrorCode", ApiErrorCode.INVALID_REQUEST);
     }
 }
