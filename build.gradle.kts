@@ -57,6 +57,10 @@ dependencies {
 	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
 	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
 
+	//redisson
+	implementation("org.redisson:redisson-spring-boot-starter:3.27.1")
+
+
 }
 
 tasks.withType<Test> {
