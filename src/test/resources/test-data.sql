@@ -6,10 +6,10 @@ VALUES (1, '테스트유저1', NOW(), NOW()),
        (5, '테스트유저5', NOW(), NOW()),
        (6, '테스트유저6', NOW(), NOW());
 
-INSERT INTO point (id, user_id, point, created_at, updated_at)
-VALUES (1, 1, 100000, NOW(), NOW());
-INSERT INTO point (id, user_id, point, created_at, updated_at)
-VALUES (2, 2, 0, NOW(), NOW());
+INSERT INTO point (id, user_id, point, created_at, updated_at, version)
+VALUES (1, 1, 100000, NOW(), NOW(), 0);
+INSERT INTO point (id, user_id, point, created_at, updated_at, version)
+VALUES (2, 2, 0, NOW(), NOW(), 0);
 
 
 INSERT INTO product (id, name, price, created_at, updated_at)

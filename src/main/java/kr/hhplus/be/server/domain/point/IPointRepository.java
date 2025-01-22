@@ -8,4 +8,6 @@ public interface IPointRepository {
     Point save(Point point);
 
     Optional<Point> findByUser(User user);
+
+    Optional<Point> findByUserWithLock(User user);
 }
