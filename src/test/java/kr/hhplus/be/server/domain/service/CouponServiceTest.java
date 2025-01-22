@@ -34,13 +34,13 @@ class CouponServiceTest {
         Long couponId = 999L;
         CouponIssueCommand command = new CouponIssueCommand(couponId);
 
-        when(couponRepository.findByIdWithLock(couponId)).thenReturn(Optional.empty());
+        when(couponRepository.findById(couponId)).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> couponService.issueCoupon(user, command))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", NOT_FOUND);
-        verify(couponRepository).findByIdWithLock(couponId);
+        verify(couponRepository).findById(couponId);
         verify(couponRepository, never()).save(any(CouponIssue.class));
     }
 
@@ -54,7 +54,7 @@ class CouponServiceTest {
         Coupon coupon = mock(Coupon.class);
         CouponIssue couponIssue = mock(CouponIssue.class);
 
-        when(couponRepository.findByIdWithLock(couponId)).thenReturn(Optional.of(coupon));
+        when(couponRepository.findById(couponId)).thenReturn(Optional.of(coupon));
         when(coupon.issue(user)).thenReturn(couponIssue);
         when(couponRepository.save(any(CouponIssue.class)))
                 .thenThrow(new DataIntegrityViolationException("중복 쿠폰 발급"));
@@ -64,7 +64,7 @@ class CouponServiceTest {
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", ApiErrorCode.CONFLICT);
 
-        verify(couponRepository).findByIdWithLock(couponId);
+        verify(couponRepository).findById(couponId);
         verify(coupon).issue(user);
         verify(couponRepository).save(couponIssue);
     }

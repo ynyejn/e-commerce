@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.domain.coupon;
 
+import kr.hhplus.be.server.domain.support.DistributedLock;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiErrorCode;
 import kr.hhplus.be.server.support.exception.ApiException;
@@ -20,8 +21,9 @@ public class CouponService {
     private final ICouponRepository couponRepository;
 
     @Transactional
+    @DistributedLock(key = "'coupon:' + #command.couponId()")
     public CouponInfo issueCoupon(User user, CouponIssueCommand command) {
-        Coupon coupon = couponRepository.findByIdWithLock(command.couponId()).orElseThrow(() -> new ApiException(NOT_FOUND));
+        Coupon coupon = couponRepository.findById(command.couponId()).orElseThrow(() -> new ApiException(NOT_FOUND));
 
         CouponIssue couponIssue = coupon.issue(user);
         try {
