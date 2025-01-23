@@ -9,7 +9,13 @@ VALUES (1, '테스트유저1', NOW(), NOW()),
 INSERT INTO point (id, user_id, point, created_at, updated_at, version)
 VALUES (1, 1, 100000, NOW(), NOW(), 0);
 INSERT INTO point (id, user_id, point, created_at, updated_at, version)
-VALUES (2, 2, 0, NOW(), NOW(), 0);
+VALUES (2, 2, 100000, NOW(), NOW(), 0);
+INSERT INTO point (id, user_id, point, created_at, updated_at, version)
+VALUES (3, 3, 100000, NOW(), NOW(), 0);
+INSERT INTO point (id, user_id, point, created_at, updated_at, version)
+VALUES (4, 4, 100000, NOW(), NOW(), 0);
+INSERT INTO point (id, user_id, point, created_at, updated_at, version)
+VALUES (5, 5, 1, NOW(), NOW(), 0);
 
 
 INSERT INTO product (id, name, price, created_at, updated_at)
@@ -17,7 +23,7 @@ VALUES (1, '테스트상품1', 10000.00, NOW(), NOW());
 INSERT INTO product (id, name, price, created_at, updated_at)
 VALUES (2, '테스트상품2', 15000.00, NOW(), NOW());
 INSERT INTO product (id, name, price, created_at, updated_at)
-VALUES (3, '테스트상품3', 1.00, NOW(), NOW());
+VALUES (3, '테스트상품3', 1, NOW(), NOW());
 
 INSERT INTO product_stock (id, product_id, quantity, created_at, updated_at)
 VALUES (1, 1, 100, NOW(), NOW());

@@ -20,7 +20,7 @@ import static kr.hhplus.be.server.support.exception.ApiErrorCode.LOCK_ACQUISITIO
 
 @Aspect
 @Component
-@Order(1) // 트랜잭션 어노테이션보다 먼저 실행되도록 설정
+@Order(1)
 public class DistributedLockAspect {
     private static final String LOCK_PREFIX = "lock:";
     private final RedissonClient redissonClient;
@@ -60,7 +60,7 @@ public class DistributedLockAspect {
                 throw new ApiException(LOCK_ACQUISITION_FAILED);
             }
 
-            return joinPoint.proceed();
+            return joinPoint.proceed(); // @Transactional AOP 실행됨
         } finally {
             multiLock.unlock();
         }
