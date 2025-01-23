@@ -264,6 +264,9 @@ sequenceDiagram
 ## 💭 회고
 [회고록](docs/review.md)
 
+## 📚 동시성 보고서
+[동시성 보고서](docs/concurrency_report.md)
+
 ## Getting Started
 
 ### Prerequisites
