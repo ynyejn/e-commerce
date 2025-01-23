@@ -2,7 +2,6 @@ package kr.hhplus.be.server.domain.product;
 
 import kr.hhplus.be.server.domain.order.IOrderRepository;
 import kr.hhplus.be.server.domain.order.OrderCreateCommand;
-import kr.hhplus.be.server.domain.support.DistributedLock;
 import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -61,13 +60,12 @@ public class ProductService {
     }
 
     @Transactional
-    @DistributedLock(key = "#commands.!['stock:' + productId]")
     public void deductStock(List<OrderCreateCommand.OrderItemCommand> commands) {
         List<Long> productIds = commands.stream()
                 .map(OrderCreateCommand.OrderItemCommand::productId)
                 .collect(Collectors.toList());
 
-        List<ProductStock> stocks = productRepository.findAllByProductIds(productIds);
+        List<ProductStock> stocks = productRepository.findAllByProductIdsWithLock(productIds);
 
         if (stocks.size() != productIds.size()) {
             throw new ApiException(NOT_FOUND);
