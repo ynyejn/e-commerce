@@ -25,7 +25,19 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Page<ProductInfo> getAllProducts(Pageable pageable) {
         Page<Product> products = productRepository.findAllProducts(pageable);
-        return products.map(ProductInfo::from);
+        List<Long> productIds = products.getContent().stream()
+                .map(Product::getId)
+                .collect(Collectors.toList());
+
+        List<ProductStock> productStocks = productRepository.findAllByProductIds(productIds);
+
+        Map<Long, ProductStock> stockMap = productStocks.stream()
+                .collect(Collectors.toMap(stock -> stock.getProduct().getId(), stock -> stock));
+
+        return products.map(product -> {
+            ProductStock stock = stockMap.get(product.getId());
+            return ProductInfo.of(product, stock);
+        });
     }
 
     @Transactional(readOnly = true)

@@ -23,7 +23,6 @@ public class ProductQueryRepositoryImpl implements ProductQueryRepository {
     @Override
     public Page<Product> findAllProducts(Pageable pageable) {
         List<Product> products = queryFactory.selectFrom(product)
-                .leftJoin(product.productStock).fetchJoin()
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

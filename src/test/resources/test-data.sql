@@ -43,8 +43,7 @@ VALUES (1, 1, 1, '테스트상품1', 20000.00, 2, NOW(), NOW()),
 
 INSERT INTO coupon (id, name, discount_type, discount_value, minimum_order_amount, issue_start_at, issue_end_at,
                     validity_period, total_issue_quantity, issued_quantity, created_at, updated_at)
-VALUES (1, '신규회원 할인', 'PERCENTAGE', 10.00, 30000.00, '2025-01-01 00:00:00', '2025-12-31 23:59:59', 30, 30, 0, NOW(),
-        NOW()),
+VALUES (1, '신규회원 할인', 'PERCENTAGE', 10.00, 30000.00, '2025-01-01 00:00:00', '2025-12-31 23:59:59', 30, 30, 0, NOW(),NOW()),
        (2, '정액 할인 쿠폰', 'FIXED', 5000.00, NULL, '2025-01-01 00:00:00', '2025-06-30 23:59:59', 60, 3, 0, NOW(), NOW()),
        (3, '정액 할인 쿠폰', 'FIXED', 5000.00, NULL, '2025-01-01 00:00:00', '2025-06-30 23:59:59', 60, 3, 0, NOW(), NOW()),
        (4, '신규회원 할인', 'PERCENTAGE', 10.00, 10000.00, '2025-01-01 00:00:00', '2025-12-31 23:59:59', 30, 30, 0, NOW(),NOW());
