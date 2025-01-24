@@ -22,4 +22,9 @@ public class PointRepositoryImpl implements IPointRepository {
     public Optional<Point> findByUser(User user) {
         return pointJpaRepository.findByUser(user);
     }
+
+    @Override
+    public Optional<Point> findByUserWithLock(User user) {
+        return pointJpaRepository.findByUserWithLock(user);
+    }
 }

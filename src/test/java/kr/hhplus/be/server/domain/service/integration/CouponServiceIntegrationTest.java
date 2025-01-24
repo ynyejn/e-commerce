@@ -8,8 +8,6 @@ import kr.hhplus.be.server.domain.user.IUserRepository;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiErrorCode;
 import kr.hhplus.be.server.support.exception.ApiException;
-import org.assertj.core.api.AssertionsForClassTypes;
-import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,7 +32,6 @@ class CouponServiceIntegrationTest {
     private CouponService couponService;
     @Autowired
     private IUserRepository userRepository;
-
 
     @Test
     void 쿠폰발급_후_목록_조회시_발급된_쿠폰이_조회된다() {
@@ -143,5 +140,27 @@ class CouponServiceIntegrationTest {
         )
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", ApiErrorCode.INVALID_REQUEST);
+    }
+
+    @Test
+    void 동일유저가_이미_발급받은_쿠폰을_재발급시_CONFLICT_예외가_발생한다() {
+        // given
+        Long userId = 1L;
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
+        Long couponId = 1L;
+        CouponIssueCommand command = new CouponIssueCommand(couponId);
+
+        // when
+        // 첫 번째 발급 시도
+        couponService.issueCoupon(user, command);
+
+        // then
+        // 두 번째 발급 시도시 예외 발생
+        assertThatThrownBy(() ->
+                couponService.issueCoupon(user, command)
+        )
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("apiErrorCode", ApiErrorCode.CONFLICT);
     }
 }

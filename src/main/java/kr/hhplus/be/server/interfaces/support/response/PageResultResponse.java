@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.support.response;
+package kr.hhplus.be.server.interfaces.support.response;
 
 import org.springframework.data.domain.Page;
 
