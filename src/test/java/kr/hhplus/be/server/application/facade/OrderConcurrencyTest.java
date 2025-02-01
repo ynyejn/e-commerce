@@ -45,7 +45,7 @@ public class OrderConcurrencyTest {
         AtomicInteger successCount = new AtomicInteger();
         AtomicInteger failCount = new AtomicInteger();
 
-        OrderCriteria.Create criteria = new OrderCriteria.Create(
+        OrderCriteria.Order criteria = new OrderCriteria.Order(
                 user, List.of(new OrderCriteria.Item(1L, 1)), // 10,000원 상품 1개
                 null
         );
@@ -89,7 +89,7 @@ public class OrderConcurrencyTest {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
             // 상품3: 재고 10개, 가격 1원
-            OrderCriteria.Create criteria = new OrderCriteria.Create(
+            OrderCriteria.Order criteria = new OrderCriteria.Order(
                     user, List.of(new OrderCriteria.Item(3L, 3)), // 3개씩 구매 시도 (4명이 시도하면 총 12개 필요)
                     null
             );

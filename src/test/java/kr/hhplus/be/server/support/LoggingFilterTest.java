@@ -30,7 +30,7 @@ class LoggingFilterTest {
             """;
 
         // when & then
-        mockMvc.perform(put("/api/v1/points")  // post를 put으로 변경
+        mockMvc.perform(put("/api/v1/points")
                         .header("USER-ID", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))

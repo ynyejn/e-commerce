@@ -6,7 +6,7 @@ import kr.hhplus.be.server.domain.user.User;
 import java.util.List;
 
 public class OrderCriteria {
-    public record Create(User user, List<Item> products, Long couponIssueId) {
+    public record Order(User user, List<Item> products, Long couponIssueId) {
         public OrderCommand.Order toCommand() {
             return new OrderCommand.Order(
                     this.user(),

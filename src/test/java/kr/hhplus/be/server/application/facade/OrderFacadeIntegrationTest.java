@@ -47,7 +47,7 @@ class OrderFacadeIntegrationTest {
         User user = userRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
 
-        OrderCriteria.Create criteria = new OrderCriteria.Create(
+        OrderCriteria.Order criteria = new OrderCriteria.Order(
                 user, List.of(new OrderCriteria.Item(1L, 1)),  // 테스트상품1 1개
                 4L  // 10% 할인 쿠폰
         );
@@ -85,7 +85,7 @@ class OrderFacadeIntegrationTest {
         User user = userRepository.findById(5L)  // 포인트가 없는 사용자
                 .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
 
-        OrderCriteria.Create criteria = new OrderCriteria.Create(
+        OrderCriteria.Order criteria = new OrderCriteria.Order(
                 user, List.of(new OrderCriteria.Item(1L, 10)),
                 null  // 쿠폰 미사용
         );
@@ -114,7 +114,7 @@ class OrderFacadeIntegrationTest {
                 .orElseThrow(() -> new RuntimeException("포인트 정보가 없습니다."));
         BigDecimal initialPoint = point.getPoint();
 
-        OrderCriteria.Create criteria = new OrderCriteria.Create(
+        OrderCriteria.Order criteria = new OrderCriteria.Order(
                 user, List.of(new OrderCriteria.Item(3L, 999)),  // 재고보다 많은 수량
                 null
         );
