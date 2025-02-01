@@ -43,7 +43,7 @@ public class OrderFacade {
 
         // 결제, 포인트 차감, 재고 차감
         paymentService.pay(PaymentCommand.Pay.of(criteria.user(), orderInfo.orderId(), orderInfo.paymentAmount()));
-        pointService.use(PointCommand.Use.from(criteria.user(), orderInfo.paymentAmount()));
+        pointService.use(PointCommand.Use.of(criteria.user(), orderInfo.paymentAmount()));
         productService.deductStock(orderCommand.products());
 
         // 주문 확정

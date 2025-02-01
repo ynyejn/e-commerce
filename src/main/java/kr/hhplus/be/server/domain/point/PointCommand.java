@@ -9,7 +9,7 @@ public class PointCommand {
     }
 
     public record Use(User user, BigDecimal amount) {
-        public static Use from(User user, BigDecimal bigDecimal) {
+        public static Use of(User user, BigDecimal bigDecimal) {
             return new Use(user, bigDecimal);
         }
     }
