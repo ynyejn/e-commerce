@@ -80,5 +80,9 @@ public class ProductRepositoryImpl implements IProductRepository {
     public Optional<ProductStock> findByProductId(Long productId) {
         return productStockJpaRepository.findByProductId(productId);
     }
+    @Override
+    public List<ProductStock> findAllByProductIds(List<Long> productIds) {
+        return productStockJpaRepository.findAllByProductIds(productIds);
+    }
 
 }

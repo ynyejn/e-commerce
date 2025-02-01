@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Redisson 로깅 설정 (분산 락 동작 확인) -->
+    <logger name="org.redisson" level="DEBUG"/>
+
+    <!-- 네트워크 통신 로깅 (Redis와의 네트워크 통신 상세 내용 확인) -->
+    <logger name="io.netty" level="DEBUG"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

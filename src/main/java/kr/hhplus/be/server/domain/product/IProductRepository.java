@@ -30,4 +30,6 @@ public interface IProductRepository {
     List<ProductStock> saveAll(List<ProductStock> stocks);
 
     Optional<ProductStock> findByProductId(Long productId);
+
+    List<ProductStock> findAllByProductIds(List<Long> productIds);
 }
