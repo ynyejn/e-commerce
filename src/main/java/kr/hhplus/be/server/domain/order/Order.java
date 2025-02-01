@@ -65,22 +65,6 @@ public class Order extends BaseEntity {
     private List<OrderItem> orderItems = new ArrayList<>();
 
 
-    public enum OrderStatus {
-        PENDING("결제 대기"),
-        PAID("결제 완료"),
-        CANCELLED("주문 취소");
-
-        private final String description;
-
-        OrderStatus(String description) {
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-    }
-
     private Order(User user) {
         this.user = user;
         this.orderNo = createOrderNo();
@@ -108,8 +92,10 @@ public class Order extends BaseEntity {
     }
 
     public void calculateOrderAmounts() {
-        this.itemAmount = calculateItemAmounts();
-        this.shippingAmount = calculateShippingAmount();
+        this.itemAmount = orderItems.stream()
+                .map(item -> item.getOrderPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        this.shippingAmount = itemAmount.compareTo(FREE_SHIPPING_AMOUNT) >= 0 ? BigDecimal.ZERO : SHIPPING_AMOUNT;
         this.totalAmount = this.itemAmount.add(this.shippingAmount);
         this.paymentAmount = this.totalAmount.subtract(this.discountAmount);
     }
@@ -118,20 +104,6 @@ public class Order extends BaseEntity {
         this.discountAmount = discountAmount;
         this.paymentAmount = this.totalAmount.subtract(this.discountAmount);
         this.couponId = couponIssueId;
-    }
-
-    private BigDecimal calculateItemAmounts() {
-        return orderItems.stream()
-                .map(item -> item.getOrderPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    private BigDecimal calculateShippingAmount() {
-        if (itemAmount.compareTo(FREE_SHIPPING_AMOUNT) >= 0) {
-            return BigDecimal.ZERO;
-        } else {
-            return SHIPPING_AMOUNT;
-        }
     }
 
     public void confirm() {
@@ -145,6 +117,22 @@ public class Order extends BaseEntity {
         return orderItems.stream()
                 .mapToInt(OrderItem::getQuantity)
                 .sum();
+    }
+
+    public enum OrderStatus {
+        PENDING("결제 대기"),
+        PAID("결제 완료"),
+        CANCELLED("주문 취소");
+
+        private final String description;
+
+        OrderStatus(String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
     }
 
 }

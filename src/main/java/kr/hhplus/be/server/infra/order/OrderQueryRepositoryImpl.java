@@ -2,9 +2,7 @@ package kr.hhplus.be.server.infra.order;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.hhplus.be.server.domain.order.QOrderItem;
 import kr.hhplus.be.server.domain.product.PopularProductQuery;
-import kr.hhplus.be.server.domain.product.QProduct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

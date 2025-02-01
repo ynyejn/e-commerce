@@ -1,7 +1,5 @@
 package kr.hhplus.be.server.domain.order;
 
-import kr.hhplus.be.server.domain.payment.Payment;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 

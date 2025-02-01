@@ -22,10 +22,10 @@ public class CouponService {
 
     @Transactional
     @DistributedLock(key = "'coupon:' + #command.couponId()")
-    public CouponInfo issueCoupon(User user, CouponIssueCommand command) {
+    public CouponInfo issueCoupon(CouponCommand.Issue command) {
         Coupon coupon = couponRepository.findById(command.couponId()).orElseThrow(() -> new ApiException(NOT_FOUND));
 
-        CouponIssue couponIssue = coupon.issue(user);
+        CouponIssue couponIssue = coupon.issue(command.user());
         try {
             couponIssue = couponRepository.save(couponIssue);
         } catch (DataIntegrityViolationException ex) {
@@ -43,14 +43,14 @@ public class CouponService {
     }
 
     @Transactional
-    public CouponDiscountInfo use(User user, Long couponIssueId, BigDecimal totalAmount) {
-        if (couponIssueId == null) {
+    public CouponDiscountInfo use(CouponCommand.Use command) {
+        if (command.couponIssueId() == null) {
             return new CouponDiscountInfo(null, BigDecimal.ZERO);
         }
 
-        CouponIssue couponIssue = couponRepository.findByCouponIssueId(couponIssueId).orElseThrow(() -> new ApiException(NOT_FOUND));
-        BigDecimal discountAmount = couponIssue.calculateDiscountAmount(totalAmount);
-        couponIssue.use(user);
+        CouponIssue couponIssue = couponRepository.findByCouponIssueId(command.couponIssueId()).orElseThrow(() -> new ApiException(NOT_FOUND));
+        BigDecimal discountAmount = couponIssue.calculateDiscountAmount(command.paymentAmount());
+        couponIssue.use(command.user());
         return new CouponDiscountInfo(couponIssue.getId(), discountAmount);
     }
 }

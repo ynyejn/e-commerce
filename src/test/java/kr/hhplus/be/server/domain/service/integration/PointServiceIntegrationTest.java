@@ -5,8 +5,6 @@ import kr.hhplus.be.server.domain.user.IUserRepository;
 import kr.hhplus.be.server.domain.user.User;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -42,7 +40,7 @@ class PointServiceIntegrationTest {
         BigDecimal chargeAmount = BigDecimal.valueOf(50000).setScale(2);
 
         // when
-        PointInfo result = pointService.chargePoint(user, new PointChargeCommand(chargeAmount));
+        PointInfo result = pointService.charge(new PointCommand.Charge(user, chargeAmount));
 
         // then
         assertThat(result.point()).isEqualTo(initialAmount.add(chargeAmount));
@@ -82,7 +80,7 @@ class PointServiceIntegrationTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.execute(() -> {
                 try {
-                    pointService.chargePoint(user, new PointChargeCommand(chargeAmount));
+                    pointService.charge(new PointCommand.Charge(user, chargeAmount));
                     successCount.incrementAndGet();
                 } catch (ObjectOptimisticLockingFailureException e) {
                     conflictCount.incrementAndGet();
@@ -118,7 +116,7 @@ class PointServiceIntegrationTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.execute(() -> {
                 try {
-                    pointService.use(user, useAmount);
+                    pointService.use(new PointCommand.Use(user, useAmount));
                     successCount.incrementAndGet();
                 } catch (ObjectOptimisticLockingFailureException e) {
                     conflictCount.incrementAndGet();

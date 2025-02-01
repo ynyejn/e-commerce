@@ -17,7 +17,6 @@ public enum ApiErrorCode {
     LOCK_ACQUISITION_FAILED(HttpStatus.CONFLICT, "락 획득에 실패했습니다.");
 
 
-
     private final HttpStatus httpStatus;
     private final String message;
 

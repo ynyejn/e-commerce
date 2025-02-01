@@ -19,7 +19,7 @@ public class PointController implements PointControllerDocs {
             @AuthenticatedUser User user,
             @RequestBody PointChargeRequest request
     ) {
-        PointInfo response = pointService.chargePoint(user, request.toCommand());
+        PointInfo response = pointService.charge(request.toCommand(user));
         return ResponseEntity.ok(PointResponse.from(response));
     }
 

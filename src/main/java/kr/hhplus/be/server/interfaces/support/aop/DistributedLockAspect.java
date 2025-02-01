@@ -45,6 +45,7 @@ public class DistributedLockAspect {
                 .getValue(context, List.class);
 
         List<RLock> locks = keys.stream()
+                .map(key -> LOCK_PREFIX + key)
                 .map(redissonClient::getLock)
                 .toList();
 

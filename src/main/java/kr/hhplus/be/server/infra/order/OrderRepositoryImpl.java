@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.infra.order;
 
-import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.IOrderRepository;
+import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.product.PopularProductQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

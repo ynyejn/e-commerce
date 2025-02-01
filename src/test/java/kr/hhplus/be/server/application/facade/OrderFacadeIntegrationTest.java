@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.application.facade;
 
-import kr.hhplus.be.server.application.order.OrderCreateCriteria;
+import kr.hhplus.be.server.application.order.OrderCriteria;
 import kr.hhplus.be.server.application.order.OrderFacade;
 import kr.hhplus.be.server.application.order.OrderResult;
 import kr.hhplus.be.server.domain.point.IPointRepository;
@@ -47,8 +47,8 @@ class OrderFacadeIntegrationTest {
         User user = userRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
 
-        OrderCreateCriteria criteria = new OrderCreateCriteria(
-                List.of(new OrderCreateCriteria.OrderItemCriteria(1L, 1)),  // 테스트상품1 1개
+        OrderCriteria.Create criteria = new OrderCriteria.Create(
+                user, List.of(new OrderCriteria.Item(1L, 1)),  // 테스트상품1 1개
                 4L  // 10% 할인 쿠폰
         );
 
@@ -60,7 +60,7 @@ class OrderFacadeIntegrationTest {
         BigDecimal initialPoint = point.getPoint();
 
         // when
-        OrderResult result = orderFacade.order(user, criteria);
+        OrderResult result = orderFacade.order(criteria);
 
         // then
         // 주문 결과
@@ -85,8 +85,8 @@ class OrderFacadeIntegrationTest {
         User user = userRepository.findById(5L)  // 포인트가 없는 사용자
                 .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
 
-        OrderCreateCriteria criteria = new OrderCreateCriteria(
-                List.of(new OrderCreateCriteria.OrderItemCriteria(1L, 10)),
+        OrderCriteria.Create criteria = new OrderCriteria.Create(
+                user, List.of(new OrderCriteria.Item(1L, 10)),
                 null  // 쿠폰 미사용
         );
 
@@ -95,7 +95,7 @@ class OrderFacadeIntegrationTest {
         int initialStock = beforeStock.getQuantity();
 
         // when & then
-        assertThatThrownBy(() -> orderFacade.order(user, criteria))
+        assertThatThrownBy(() -> orderFacade.order(criteria))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", INVALID_REQUEST);
 
@@ -114,13 +114,13 @@ class OrderFacadeIntegrationTest {
                 .orElseThrow(() -> new RuntimeException("포인트 정보가 없습니다."));
         BigDecimal initialPoint = point.getPoint();
 
-        OrderCreateCriteria criteria = new OrderCreateCriteria(
-                List.of(new OrderCreateCriteria.OrderItemCriteria(3L, 999)),  // 재고보다 많은 수량
+        OrderCriteria.Create criteria = new OrderCriteria.Create(
+                user, List.of(new OrderCriteria.Item(3L, 999)),  // 재고보다 많은 수량
                 null
         );
 
         // when & then
-        assertThatThrownBy(() -> orderFacade.order(user, criteria))
+        assertThatThrownBy(() -> orderFacade.order(criteria))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", ApiErrorCode.INSUFFICIENT_STOCK);
 

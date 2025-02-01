@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.domain.product;
 
 import kr.hhplus.be.server.domain.order.IOrderRepository;
-import kr.hhplus.be.server.domain.order.OrderCreateCommand;
+import kr.hhplus.be.server.domain.order.OrderCommand;
 import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -50,9 +50,9 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ValidatedProductInfo> validateProducts(List<OrderCreateCommand.OrderItemCommand> orderItemCommands) {
+    public List<ValidatedProductInfo> validateProducts(List<OrderCommand.Item> orderItemCommands) {
         List<Long> productIds = orderItemCommands.stream()
-                .map(OrderCreateCommand.OrderItemCommand::productId)
+                .map(OrderCommand.Item::productId)
                 .collect(Collectors.toList());
 
         List<Product> products = productRepository.findAllById(productIds);
@@ -63,7 +63,7 @@ public class ProductService {
 
         return products.stream()
                 .map(product -> {
-                    OrderCreateCommand.OrderItemCommand orderItemCommand = orderItemCommands.stream()
+                    OrderCommand.Item orderItemCommand = orderItemCommands.stream()
                             .filter(command -> command.productId() == product.getId())
                             .findFirst().orElseThrow(() -> new ApiException(NOT_FOUND));
                     return ValidatedProductInfo.of(product, orderItemCommand.quantity());
@@ -72,9 +72,9 @@ public class ProductService {
     }
 
     @Transactional
-    public void deductStock(List<OrderCreateCommand.OrderItemCommand> commands) {
+    public void deductStock(List<OrderCommand.Item> commands) {
         List<Long> productIds = commands.stream()
-                .map(OrderCreateCommand.OrderItemCommand::productId)
+                .map(OrderCommand.Item::productId)
                 .collect(Collectors.toList());
 
         List<ProductStock> stocks = productRepository.findAllByProductIdsWithLock(productIds);
@@ -87,7 +87,7 @@ public class ProductService {
                 .collect(Collectors.toMap(stock -> stock.getProduct().getId(), stock -> stock));
 
 
-        for (OrderCreateCommand.OrderItemCommand command : commands) {
+        for (OrderCommand.Item command : commands) {
             ProductStock stock = stockMap.get(command.productId());
             stock.deduct(command.quantity());
         }

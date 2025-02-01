@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.application.facade;
 
-import kr.hhplus.be.server.application.order.OrderCreateCriteria;
+import kr.hhplus.be.server.application.order.OrderCriteria;
 import kr.hhplus.be.server.application.order.OrderFacade;
 import kr.hhplus.be.server.domain.product.IProductRepository;
 import kr.hhplus.be.server.domain.product.ProductStock;
@@ -45,8 +45,8 @@ public class OrderConcurrencyTest {
         AtomicInteger successCount = new AtomicInteger();
         AtomicInteger failCount = new AtomicInteger();
 
-        OrderCreateCriteria criteria = new OrderCreateCriteria(
-                List.of(new OrderCreateCriteria.OrderItemCriteria(1L, 1)), // 10,000원 상품 1개
+        OrderCriteria.Create criteria = new OrderCriteria.Create(
+                user, List.of(new OrderCriteria.Item(1L, 1)), // 10,000원 상품 1개
                 null
         );
 
@@ -54,7 +54,7 @@ public class OrderConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    orderFacade.order(user, criteria);
+                    orderFacade.order(criteria);
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     failCount.incrementAndGet();
@@ -82,23 +82,22 @@ public class OrderConcurrencyTest {
         AtomicInteger successCount = new AtomicInteger();
         AtomicInteger failCount = new AtomicInteger();
 
-        // 상품3: 재고 10개, 가격 1원
-        OrderCreateCriteria criteria = new OrderCreateCriteria(
-                List.of(new OrderCreateCriteria.OrderItemCriteria(3L, 3)), // 3개씩 구매 시도 (4명이 시도하면 총 12개 필요)
-                null
-        );
-
 
         // when
         for (int i = 0; i < threadCount; i++) {
             Long userId = (long) (i + 1);  // 각각 다른 사용자
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
+            // 상품3: 재고 10개, 가격 1원
+            OrderCriteria.Create criteria = new OrderCriteria.Create(
+                    user, List.of(new OrderCriteria.Item(3L, 3)), // 3개씩 구매 시도 (4명이 시도하면 총 12개 필요)
+                    null
+            );
 
             executorService.submit(() -> {
                 try {
                     barrier.await();
-                    orderFacade.order(user, criteria);
+                    orderFacade.order(criteria);
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                   e.printStackTrace();

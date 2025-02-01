@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.interfaces.order;
 
-import kr.hhplus.be.server.application.order.OrderCreateCriteria;
+import kr.hhplus.be.server.application.order.OrderCriteria;
+import kr.hhplus.be.server.domain.user.User;
 
 import java.util.List;
 
@@ -8,8 +9,9 @@ public record OrderCreateRequest(
         List<OrderProductRequest> products,
         Long couponIssueId
 ) {
-    public OrderCreateCriteria toCriteria() {
-        return new OrderCreateCriteria(
+    public OrderCriteria.Create toCriteria(User user) {
+        return new OrderCriteria.Create(
+                user,
                 this.products().stream()
                         .map(orderProductRequest -> orderProductRequest.toCriteria())
                         .toList(),
@@ -17,12 +19,12 @@ public record OrderCreateRequest(
         );
     }
 
-    public record OrderProductRequest (
+    public record OrderProductRequest(
             Long productId,
             int quantity
-    ){
-        public OrderCreateCriteria.OrderItemCriteria toCriteria() {
-            return new OrderCreateCriteria.OrderItemCriteria(
+    ) {
+        public OrderCriteria.Item toCriteria() {
+            return new OrderCriteria.Item(
                     this.productId(),
                     this.quantity()
             );

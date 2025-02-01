@@ -2,7 +2,7 @@ package kr.hhplus.be.server.domain.service.integration;
 
 import kr.hhplus.be.server.domain.coupon.CouponDiscountInfo;
 import kr.hhplus.be.server.domain.coupon.CouponInfo;
-import kr.hhplus.be.server.domain.coupon.CouponIssueCommand;
+import kr.hhplus.be.server.domain.coupon.CouponCommand;
 import kr.hhplus.be.server.domain.coupon.CouponService;
 import kr.hhplus.be.server.domain.user.IUserRepository;
 import kr.hhplus.be.server.domain.user.User;
@@ -42,7 +42,7 @@ class CouponServiceIntegrationTest {
 
         // when
         // 쿠폰 발급
-        CouponInfo issuedCoupon = couponService.issueCoupon(user, new CouponIssueCommand(1L));
+        CouponInfo issuedCoupon = couponService.issueCoupon(new CouponCommand.Issue(user, 1L));
         // 쿠폰 목록 조회
         List<CouponInfo> coupons = couponService.getCoupons(user);
 
@@ -86,12 +86,12 @@ class CouponServiceIntegrationTest {
 
             executorService.submit(() -> {
                 try {
-                    couponService.issueCoupon(user, new CouponIssueCommand(couponId));
+                    couponService.issueCoupon(new CouponCommand.Issue(user, couponId));
                     successCount.incrementAndGet();
                 } catch (ApiException e) {
                     if (e.getApiErrorCode() == INSUFFICIENT_COUPON) {
                         failCount.incrementAndGet();
-                    }else{
+                    } else {
                         throw e;
                     }
                 } finally {
@@ -117,7 +117,7 @@ class CouponServiceIntegrationTest {
                 .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
 
         // when
-        CouponDiscountInfo discountInfo = couponService.use(user, couponIssueId, orderAmount);
+        CouponDiscountInfo discountInfo = couponService.use(new CouponCommand.Use(user, couponIssueId, orderAmount));
 
         // then
         assertThat(discountInfo.couponIssueId()).isEqualTo(couponIssueId);
@@ -136,7 +136,7 @@ class CouponServiceIntegrationTest {
 
         // when & then
         assertThatThrownBy(() ->
-                couponService.use(user, usedCouponIssueId, orderAmount)
+                couponService.use(new CouponCommand.Use(user, usedCouponIssueId, orderAmount))
         )
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", ApiErrorCode.INVALID_REQUEST);
@@ -149,16 +149,16 @@ class CouponServiceIntegrationTest {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
         Long couponId = 1L;
-        CouponIssueCommand command = new CouponIssueCommand(couponId);
+        CouponCommand.Issue command = new CouponCommand.Issue(user, couponId);
 
         // when
         // 첫 번째 발급 시도
-        couponService.issueCoupon(user, command);
+        couponService.issueCoupon(command);
 
         // then
         // 두 번째 발급 시도시 예외 발생
         assertThatThrownBy(() ->
-                couponService.issueCoupon(user, command)
+                couponService.issueCoupon(command)
         )
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", ApiErrorCode.CONFLICT);

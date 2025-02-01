@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.interfaces.payment;
 
-import kr.hhplus.be.server.domain.payment.PaymentCreateCommand;
+import kr.hhplus.be.server.domain.payment.PaymentCommand;
+import kr.hhplus.be.server.domain.user.User;
 
 import java.math.BigDecimal;
 
@@ -8,7 +9,7 @@ public record PaymentCreateRequest(
         Long orderId,
         BigDecimal paymentAmount
 ) {
-    public PaymentCreateCommand toCommand() {
-        return new PaymentCreateCommand(orderId, paymentAmount);
+    public PaymentCommand.Pay toCommand(User user) {
+        return new PaymentCommand.Pay(user, orderId, paymentAmount);
     }
 }

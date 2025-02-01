@@ -1,15 +1,10 @@
 package kr.hhplus.be.server.domain.order;
 
-import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 
@@ -21,8 +16,8 @@ public class OrderService {
 
 
     @Transactional
-    public OrderInfo order(User user, OrderCreateCommand command) {
-        Order order = Order.create(user);
+    public OrderInfo order(OrderCommand.Order command) {
+        Order order = Order.create(command.user());
         command.products().stream()
                 .map(item -> OrderItem.create(item.product(), item.quantity()))
                 .forEach(order::addOrderItem);
@@ -34,7 +29,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderInfo confirm(OrderConfirmCommand command) {
+    public OrderInfo confirm(OrderCommand.Confirm command) {
         Order order = orderRepository.findById(command.orderId()).orElseThrow(() -> new ApiException(NOT_FOUND));
         order.confirm();
         eventPublisher.publishEvent(OrderEvent.from(order));
@@ -42,9 +37,9 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderInfo applyCoupon(Long orderId, Long couponIssueId, BigDecimal discountAmount) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ApiException(NOT_FOUND));
-        order.applyCoupon(couponIssueId,discountAmount);
+    public OrderInfo applyCoupon(OrderCommand.ApplyCoupon command) {
+        Order order = orderRepository.findById(command.orderId()).orElseThrow(() -> new ApiException(NOT_FOUND));
+        order.applyCoupon(command.couponIssueId(), command.discountAmount());
         return OrderInfo.from(order);
     }
 }

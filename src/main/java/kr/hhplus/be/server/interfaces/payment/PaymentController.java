@@ -22,8 +22,9 @@ public class PaymentController implements PaymentControllerDocs {
      * 일반적으로 주문 시 결제 한번에 되지만 재시도 등의 이유로 결제만 따로 뺀 경우 사용
      */
     @PostMapping()
-    public ResponseEntity<PaymentResponse> createPayment(@AuthenticatedUser User user, @RequestBody PaymentCreateRequest request) {
-        PaymentInfo paymentInfo = paymentService.pay(user, request.toCommand());
+    public ResponseEntity<PaymentResponse> createPayment(@AuthenticatedUser User user,
+                                                         @RequestBody PaymentCreateRequest request) {
+        PaymentInfo paymentInfo = paymentService.pay(request.toCommand(user));
         return ResponseEntity.ok(PaymentResponse.from(paymentInfo));
     }
 }

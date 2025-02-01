@@ -17,7 +17,8 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Table(name = "payment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Payment extends BaseEntity {
-    @Id @GeneratedValue(strategy = IDENTITY)
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     @Column(name = "order_id", nullable = false)

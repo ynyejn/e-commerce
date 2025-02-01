@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.interfaces.support.response;
 
 public record ResultResponse(
-    Boolean result,
-    String message
+        Boolean result,
+        String message
 ) {
     public ResultResponse {
         result = (result != null) ? result : false;

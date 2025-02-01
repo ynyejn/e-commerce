@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.domain.payment;
 
-import kr.hhplus.be.server.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +11,7 @@ public class PaymentService {
 
 
     @Transactional
-    public PaymentInfo pay(User user, PaymentCreateCommand command) {
+    public PaymentInfo pay(PaymentCommand.Pay command) {
         Payment payment = Payment.create(command.orderId(), command.paymentAmount());
         payment = paymentRepository.save(payment);
         return PaymentInfo.from(payment);

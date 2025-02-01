@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.domain.service.integration;
 
-import kr.hhplus.be.server.domain.order.OrderCreateCommand;
+import kr.hhplus.be.server.domain.order.OrderCommand;
 import kr.hhplus.be.server.domain.product.*;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.Test;
@@ -65,8 +65,8 @@ class ProductServiceIntegrationTest {
     void 상품_검증시_상품정보가_정상적으로_반환된다() {
         // given
         Long productId = 1L;
-        List<OrderCreateCommand.OrderItemCommand> commands = List.of(
-                new OrderCreateCommand.OrderItemCommand(productId, null, 5)
+        List<OrderCommand.Item> commands = List.of(
+                new OrderCommand.Item(productId, null, 5)
         );
 
         // when
@@ -85,8 +85,8 @@ class ProductServiceIntegrationTest {
     void 존재하지_않는_상품_검증시_NOT_FOUND_예외가_발생한다() {
         // given
         Long nonExistentProductId = 999L;
-        List<OrderCreateCommand.OrderItemCommand> commands = List.of(
-                new OrderCreateCommand.OrderItemCommand(nonExistentProductId, null, 5)
+        List<OrderCommand.Item> commands = List.of(
+                new OrderCommand.Item(nonExistentProductId, null, 5)
         );
 
         // when & then
@@ -105,8 +105,8 @@ class ProductServiceIntegrationTest {
                 .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
         int initialStock = beforeStock.getQuantity();
 
-        List<OrderCreateCommand.OrderItemCommand> commands = List.of(
-                new OrderCreateCommand.OrderItemCommand(productId, null, deductQuantity)
+        List<OrderCommand.Item> commands = List.of(
+                new OrderCommand.Item(productId, null, deductQuantity)
         );
 
         // when
@@ -140,7 +140,7 @@ class ProductServiceIntegrationTest {
                 try {
                     // 각 스레드에서 별도의 트랜잭션으로 실행
                     productService.deductStock(List.of(
-                            new OrderCreateCommand.OrderItemCommand(productId, null, deductQuantity)
+                            new OrderCommand.Item(productId, null, deductQuantity)
                     ));
                     successCount.incrementAndGet();
                 } catch (Exception e) {

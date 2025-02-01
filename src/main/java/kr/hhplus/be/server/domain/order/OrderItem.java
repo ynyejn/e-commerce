@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.domain.order;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.domain.support.BaseEntity;
 import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.support.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,8 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Table(name = "order_item")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem extends BaseEntity {
-    @Id @GeneratedValue(strategy = IDENTITY)
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = LAZY, optional = false)

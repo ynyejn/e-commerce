@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.domain.service;
 
-import kr.hhplus.be.server.domain.order.OrderConfirmCommand;
 import kr.hhplus.be.server.domain.order.*;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.user.User;
@@ -40,15 +39,15 @@ class OrderServiceTest {
         User user = mock(User.class);
         Product product = Product.create("테스트상품", BigDecimal.valueOf(10000));
         ReflectionTestUtils.setField(product, "id", 1L);
-        OrderCreateCommand command = new OrderCreateCommand(
-                List.of(new OrderCreateCommand.OrderItemCommand(1L,product, 2)),null
+        OrderCommand.Order command = new OrderCommand.Order(user,
+                List.of(new OrderCommand.Item(1L, product, 2)), null
         );
 
         when(orderRepository.save(any(Order.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        OrderInfo result = orderService.order(user, command);
+        OrderInfo result = orderService.order(command);
 
         // then
         assertThat(result.totalAmount()).isEqualTo(BigDecimal.valueOf(23000)); // 배송비 포함
@@ -63,13 +62,12 @@ class OrderServiceTest {
         when(orderRepository.findById(nonExistentOrderId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> orderService.confirm(new OrderConfirmCommand(nonExistentOrderId)))
+        assertThatThrownBy(() -> orderService.confirm(new OrderCommand.Confirm(nonExistentOrderId)))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", NOT_FOUND);
 
         verify(eventPublisher, never()).publishEvent(any());
     }
-
 
 
     @Test
@@ -80,7 +78,7 @@ class OrderServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-                orderService.applyCoupon(nonExistentOrderId, 1L, BigDecimal.valueOf(5000)))
+                orderService.applyCoupon(new OrderCommand.ApplyCoupon(nonExistentOrderId, 1L, BigDecimal.valueOf(5000))))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", NOT_FOUND);
     }

@@ -26,7 +26,7 @@ public class PointHistory extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id"
-    ,foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+            , foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Payment payment;
 
     @Column(name = "amount", nullable = false, precision = 10, scale = 4)

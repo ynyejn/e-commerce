@@ -37,12 +37,12 @@ class CouponServiceTest {
             // given
             User user = mock(User.class);
             Long couponId = 999L;
-            CouponIssueCommand command = new CouponIssueCommand(couponId);
+            CouponCommand.Issue command = new CouponCommand.Issue(user, couponId);
 
             when(couponRepository.findById(couponId)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> couponService.issueCoupon(user, command))
+            assertThatThrownBy(() -> couponService.issueCoupon(command))
                     .isInstanceOf(ApiException.class)
                     .hasFieldOrPropertyWithValue("apiErrorCode", NOT_FOUND);
             verify(couponRepository).findById(couponId);
@@ -54,7 +54,7 @@ class CouponServiceTest {
             // given
             User user = mock(User.class);
             Long couponId = 1L;
-            CouponIssueCommand command = new CouponIssueCommand(couponId);
+            CouponCommand.Issue command = new CouponCommand.Issue(user, couponId);
 
             Coupon coupon = mock(Coupon.class);
             CouponIssue couponIssue = mock(CouponIssue.class);
@@ -65,7 +65,7 @@ class CouponServiceTest {
                     .thenThrow(new DataIntegrityViolationException("중복 쿠폰 발급"));
 
             // when & then
-            assertThatThrownBy(() -> couponService.issueCoupon(user, command))
+            assertThatThrownBy(() -> couponService.issueCoupon(command))
                     .isInstanceOf(ApiException.class)
                     .hasFieldOrPropertyWithValue("apiErrorCode", ApiErrorCode.CONFLICT);
 
@@ -93,7 +93,7 @@ class CouponServiceTest {
             when(couponRepository.findByCouponIssueId(couponIssueId)).thenReturn(Optional.of(couponIssue));
 
             // when
-            CouponDiscountInfo result = couponService.use(user, couponIssueId, totalAmount);
+            CouponDiscountInfo result = couponService.use(new CouponCommand.Use(user, couponIssueId, totalAmount));
 
             // then
             assertThat(result.couponIssueId()).isEqualTo(couponIssueId);
@@ -108,7 +108,7 @@ class CouponServiceTest {
             BigDecimal totalAmount = BigDecimal.valueOf(10000);
 
             // when
-            CouponDiscountInfo result = couponService.use(user, null, totalAmount);
+            CouponDiscountInfo result = couponService.use(new CouponCommand.Use(user, null, totalAmount));
 
             // then
             assertThat(result.couponIssueId()).isNull();

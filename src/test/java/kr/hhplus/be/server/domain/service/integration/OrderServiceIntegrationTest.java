@@ -43,10 +43,10 @@ class OrderServiceIntegrationTest {
         Product product = productRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
 
-        OrderCreateCommand command = new OrderCreateCommand(List.of(new OrderCreateCommand.OrderItemCommand(product.getId(), product, 10)), null);
+        OrderCommand.Order command = new OrderCommand.Order(user, List.of(new OrderCommand.Item(product.getId(), product, 10)), null);
 
         // when
-        OrderInfo orderInfo = orderService.order(user, command);
+        OrderInfo orderInfo = orderService.order(command);
 
         // then
         assertThat(orderInfo).isNotNull();
@@ -56,7 +56,7 @@ class OrderServiceIntegrationTest {
 
         Order savedOrder = orderRepository.findById(orderInfo.orderId())
                 .orElseThrow(() -> new RuntimeException("주문이 저장되지 않았습니다."));
-        assertThat(savedOrder.getStatus()).isEqualTo(Order.OrderStatus.PENDING);
+        assertThat(savedOrder.getStatus()).isEqualTo(kr.hhplus.be.server.domain.order.Order.OrderStatus.PENDING);
     }
 
     @Test
@@ -66,14 +66,15 @@ class OrderServiceIntegrationTest {
         Product product = productRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
 
-        OrderCreateCommand command = new OrderCreateCommand(List.of(new OrderCreateCommand.OrderItemCommand(product.getId(), product, 5)), null);
-        OrderInfo orderInfo = orderService.order(user, command);
+        OrderCommand.Order command = new OrderCommand.Order(user, List.of(new OrderCommand.Item(product.getId(), product, 5)), null);
+        OrderInfo orderInfo = orderService.order(command);
 
         // when
         OrderInfo discountedOrder = orderService.applyCoupon(
-                orderInfo.orderId(),
-                1L,
-                BigDecimal.valueOf(5000)
+                new OrderCommand.ApplyCoupon(
+                        orderInfo.orderId(),
+                        1L,
+                        BigDecimal.valueOf(5000))
         );
 
         // then
@@ -90,12 +91,12 @@ class OrderServiceIntegrationTest {
         Product product = productRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("테스트 데이터가 없습니다."));
 
-        OrderCreateCommand command = new OrderCreateCommand(List.of(new OrderCreateCommand.OrderItemCommand(product.getId(), product, 1)), null);
-        OrderInfo orderInfo = orderService.order(user, command);
+        OrderCommand.Order command = new OrderCommand.Order(user, List.of(new OrderCommand.Item(product.getId(), product, 1)), null);
+        OrderInfo orderInfo = orderService.order(command);
 
         // when
         OrderInfo confirmedOrder = orderService.confirm(
-                new OrderConfirmCommand(orderInfo.orderId())
+                new OrderCommand.Confirm(orderInfo.orderId())
         );
 
         // then
@@ -104,7 +105,7 @@ class OrderServiceIntegrationTest {
 
         Order savedOrder = orderRepository.findById(confirmedOrder.orderId())
                 .orElseThrow(() -> new RuntimeException("주문이 존재하지 않습니다."));
-        assertThat(savedOrder.getStatus()).isEqualTo(Order.OrderStatus.PAID);
+        assertThat(savedOrder.getStatus()).isEqualTo(kr.hhplus.be.server.domain.order.Order.OrderStatus.PAID);
     }
 
     @Test
@@ -114,7 +115,7 @@ class OrderServiceIntegrationTest {
 
         // when & then
         assertThatThrownBy(() ->
-                orderService.confirm(new OrderConfirmCommand(nonExistentOrderId))
+                orderService.confirm(new OrderCommand.Confirm(nonExistentOrderId))
         )
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", NOT_FOUND);
@@ -127,7 +128,7 @@ class OrderServiceIntegrationTest {
 
         // when & then
         assertThatThrownBy(() ->
-                orderService.applyCoupon(nonExistentOrderId, 1L, BigDecimal.valueOf(5000))
+                orderService.applyCoupon(new OrderCommand.ApplyCoupon(nonExistentOrderId, 1L, BigDecimal.valueOf(5000)))
         )
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", NOT_FOUND);

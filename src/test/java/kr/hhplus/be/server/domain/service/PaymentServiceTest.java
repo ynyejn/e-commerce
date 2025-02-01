@@ -30,13 +30,13 @@ class PaymentServiceTest {
         User user = User.create("테스트 유저");
         Long orderId = 1L;
         BigDecimal paymentAmount = BigDecimal.valueOf(10000);
-        PaymentCreateCommand command = new PaymentCreateCommand(orderId, paymentAmount);
+        PaymentCommand.Pay command = new PaymentCommand.Pay(user, orderId, paymentAmount);
 
         when(paymentRepository.save(any(Payment.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        PaymentInfo result = paymentService.pay(user, command);
+        PaymentInfo result = paymentService.pay(command);
 
         // then
         assertThat(result.orderId()).isEqualTo(orderId);
@@ -49,10 +49,10 @@ class PaymentServiceTest {
     void 결제_금액이_0원_이하인_경우_예외가_발생한다() {
         // given
         User user = User.create("테스트 유저");
-        PaymentCreateCommand command = new PaymentCreateCommand(1L, BigDecimal.ZERO);
+        PaymentCommand.Pay command = new PaymentCommand.Pay(user, 1L, BigDecimal.ZERO);
 
         // when & then
-        assertThatThrownBy(() -> paymentService.pay(user, command))
+        assertThatThrownBy(() -> paymentService.pay(command))
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", ApiErrorCode.INVALID_REQUEST);
 

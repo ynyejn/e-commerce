@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.interfaces.coupon;
 
+import kr.hhplus.be.server.domain.coupon.CouponCommand;
 import kr.hhplus.be.server.domain.coupon.CouponInfo;
-import kr.hhplus.be.server.domain.coupon.CouponIssueCommand;
 import kr.hhplus.be.server.domain.coupon.CouponService;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.auth.AuthenticatedUser;
@@ -22,7 +22,7 @@ public class CouponController implements CouponControllerDocs {
      */
     @PostMapping("/{couponId}/issue")
     public ResponseEntity<CouponIssueResponse> issueCoupon(@AuthenticatedUser User user, @PathVariable Long couponId) {
-        CouponInfo couponInfo = couponService.issueCoupon(user, new CouponIssueCommand(couponId));
+        CouponInfo couponInfo = couponService.issueCoupon(new CouponCommand.Issue(user, couponId));
         return ResponseEntity.ok(CouponIssueResponse.from(couponInfo));
     }
 

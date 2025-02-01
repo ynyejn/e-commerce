@@ -7,8 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 
 @Slf4j
@@ -24,17 +22,17 @@ public class PointService {
     }
 
     @Transactional
-    public PointInfo chargePoint(User user, PointChargeCommand command) {
-        Point point = pointRepository.findByUserWithLock(user).orElseThrow(() -> new ApiException(NOT_FOUND));
+    public PointInfo charge(PointCommand.Charge command) {
+        Point point = pointRepository.findByUserWithLock(command.user()).orElseThrow(() -> new ApiException(NOT_FOUND));
         point.charge(command.amount());
         point = pointRepository.save(point);
         return PointInfo.from(point);
     }
 
     @Transactional
-    public void use(User user, BigDecimal amount) {
-        Point point = pointRepository.findByUserWithLock(user).orElseThrow(() -> new ApiException(NOT_FOUND));
-        point.use(amount);
+    public void use(PointCommand.Use command) {
+        Point point = pointRepository.findByUserWithLock(command.user()).orElseThrow(() -> new ApiException(NOT_FOUND));
+        point.use(command.amount());
         pointRepository.save(point);
     }
 

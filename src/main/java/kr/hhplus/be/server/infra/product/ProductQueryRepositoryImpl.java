@@ -2,7 +2,6 @@ package kr.hhplus.be.server.infra.product;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.product.QProduct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
