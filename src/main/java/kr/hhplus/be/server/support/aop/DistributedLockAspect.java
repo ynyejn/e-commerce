@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.interfaces.support.aop;
+package kr.hhplus.be.server.support.aop;
 
 import kr.hhplus.be.server.domain.support.DistributedLock;
 import kr.hhplus.be.server.support.exception.ApiException;

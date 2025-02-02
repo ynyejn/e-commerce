@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.support;
 
 import kr.hhplus.be.server.domain.support.DistributedLock;
-import kr.hhplus.be.server.interfaces.support.aop.DistributedLockAspect;
+import kr.hhplus.be.server.support.aop.DistributedLockAspect;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
