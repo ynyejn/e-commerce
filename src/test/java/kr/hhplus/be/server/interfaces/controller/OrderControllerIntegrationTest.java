@@ -21,14 +21,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Sql(scripts = {"/cleanup.sql", "/test-data.sql"})
 class OrderControllerIntegrationTest {
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
     private static final String USER_ID = "USER-ID";
     private static final String TEST_USER_ID = "1";
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void 주문_생성_요청이_성공하면_200_응답이_반환된다() throws Exception {

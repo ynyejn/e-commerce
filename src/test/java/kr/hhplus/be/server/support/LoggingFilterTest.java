@@ -24,10 +24,10 @@ class LoggingFilterTest {
     void 요청_응답_로깅이_정상적으로_동작한다() throws Exception {
         // given
         String requestBody = """
-            {
-                "amount": 10000
-            }
-            """;
+                {
+                    "amount": 10000
+                }
+                """;
 
         // when & then
         mockMvc.perform(put("/api/v1/points")

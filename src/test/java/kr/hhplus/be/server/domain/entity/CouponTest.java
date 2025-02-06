@@ -10,14 +10,15 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import static kr.hhplus.be.server.support.exception.ApiErrorCode.*;
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.INSUFFICIENT_COUPON;
+import static kr.hhplus.be.server.support.exception.ApiErrorCode.INVALID_REQUEST;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 class CouponTest {
 
     @Test
-    void 쿠폰_발급시_발급_가능_기간이_아니면_INVALID_REQUEST_예외가_발생한다(){
+    void 쿠폰_발급시_발급_가능_기간이_아니면_INVALID_REQUEST_예외가_발생한다() {
         // given
         User user = User.create("테스트유저");
         Coupon coupon = Coupon.create(
@@ -40,8 +41,9 @@ class CouponTest {
 
         assertThat(coupon.getIssuedQuantity()).isEqualTo(beforeQuantity);
     }
+
     @Test
-    void 쿠폰_발급시_발급_가능_수량이_0이면_INSUFFICIENT_COUPON_예외가_발생한다(){
+    void 쿠폰_발급시_발급_가능_수량이_0이면_INSUFFICIENT_COUPON_예외가_발생한다() {
         // given
         User user = User.create("테스트유저");
         ReflectionTestUtils.setField(user, "id", 1L);

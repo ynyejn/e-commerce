@@ -3,9 +3,12 @@ package kr.hhplus.be.server.domain.service.integration;
 import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.domain.coupon.CouponIssueProcessor;
 import kr.hhplus.be.server.domain.coupon.ICouponRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.jdbc.Sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,6 +21,16 @@ class CouponIssueProcessorIntegrationTest {
     private CouponIssueProcessor couponIssueProcessor;
     @Autowired
     private ICouponRepository couponRepository;
+    @Autowired
+    private RedisTemplate<String, Long> redisTemplate;
+
+    @BeforeEach
+    void setUp() {
+        redisTemplate.execute((RedisCallback<Object>) connection -> {
+            connection.flushDb();
+            return null;
+        });
+    }
 
     @Test
     void 쿠폰발급시_발급가능_수량이_충분하면_모든요청을처리한다() {
