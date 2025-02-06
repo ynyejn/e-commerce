@@ -1,0 +1,34 @@
+package kr.hhplus.be.server.interfaces.coupon;
+
+import kr.hhplus.be.server.domain.coupon.CouponIssueProcessor;
+import kr.hhplus.be.server.domain.coupon.ICouponRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+
+@Component
+@Slf4j
+@RequiredArgsConstructor
+public class CouponScheduler {
+    private final ICouponRepository couponRepository;
+    private final CouponIssueProcessor couponIssueProcessor;
+
+    @Async
+    @Transactional
+    @Scheduled(cron = "0 */1 * * * *")
+    @SchedulerLock(name = "issueCoupon", lockAtLeastFor = "59s", lockAtMostFor = "59s")
+    public void issueCoupon() {
+        log.info("issueCoupon start");
+        // 각 쿠폰에 대해 발급 처리
+        couponRepository.findIssuableCoupons(LocalDateTime.now().minusMinutes(1)).forEach(couponIssueProcessor::processCouponIssuance);
+        log.info("issueCoupon end");
+    }
+
+
+}
