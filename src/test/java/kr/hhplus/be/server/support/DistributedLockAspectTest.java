@@ -3,156 +3,103 @@ package kr.hhplus.be.server.support;
 import kr.hhplus.be.server.domain.support.DistributedLock;
 import kr.hhplus.be.server.support.aop.DistributedLockAspect;
 import kr.hhplus.be.server.support.exception.ApiException;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.reflect.MethodSignature;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 
-import java.lang.annotation.Annotation;
 import java.util.concurrent.TimeUnit;
 
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.LOCK_ACQUISITION_FAILED;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DistributedLockAspectTest {
-    @Mock
     private RedissonClient redissonClient;
-
-    @Mock
-    private ProceedingJoinPoint joinPoint;
-
-    @Mock
+    private TestService testService;
     private RLock rLock;
-
-    @Mock
     private RLock multiLock;
 
-    @InjectMocks
-    private DistributedLockAspect lockAspect;
+    @BeforeEach
+    void setUp() {
+        redissonClient = mock(RedissonClient.class);
+        rLock = mock(RLock.class);
+        multiLock = mock(RLock.class);
 
-    @Test
-    void 분산락_획득_성공시_정해진_순서대로_실행된다() throws Throwable {
-        // given
-        DistributedLock distributedLock = createDistributedLockAnnotation();
-        MethodSignature signature = createMethodSignature();
-        Object expectedResult = new Object();
+        when(redissonClient.getLock(any(String.class))).thenReturn(rLock);
+        when(redissonClient.getMultiLock(any(RLock[].class))).thenReturn(multiLock);
 
-        when(joinPoint.getSignature()).thenReturn(signature);
-        when(redissonClient.getLock(anyString())).thenReturn(rLock);
-        when(redissonClient.getMultiLock(any())).thenReturn(multiLock);
-        when(multiLock.tryLock(anyLong(), anyLong(), any())).thenReturn(true);
-        when(joinPoint.proceed()).thenReturn(expectedResult);
+        TestService targetService = new TestService();
 
-        // when
-        Object result = lockAspect.executeWithLock(joinPoint, distributedLock);
+        // TestService클래스의 AOP 프록시를 설정
+        AspectJProxyFactory factory = new AspectJProxyFactory(targetService);
+        factory.addAspect(new DistributedLockAspect(redissonClient));
 
-        // then
-        InOrder inOrder = inOrder(redissonClient, multiLock, joinPoint);
+        // 프록시 객체를 생성
+        testService = factory.getProxy();
+    }
 
-        // 1. 락 생성
-        inOrder.verify(redissonClient).getLock(anyString());
-        inOrder.verify(redissonClient).getMultiLock(any());
 
-        // 2. 락 획득
-        inOrder.verify(multiLock).tryLock(anyLong(), anyLong(), any());
+    static class TestService {
+        @DistributedLock(key = "'test'")
+        public String executeWithLock() {
+            return "success";
+        }
 
-        // 3. 비즈니스 로직 실행
-        inOrder.verify(joinPoint).proceed();
-
-        // 4. 락 해제
-        inOrder.verify(multiLock).unlock();
-
-        // 5. 결과 확인
-        assertThat(result).isEqualTo(expectedResult);
+        @DistributedLock(key = "'test'")
+        public String executeWithException() {
+            throw new RuntimeException("비즈니스 로직 실패");
+        }
     }
 
     @Test
-    void 분산락_획득_실패시_예외가_발생한다() throws Throwable {
+    void 분산락_획득_성공시_정해진_순서대로_실행된다() throws InterruptedException {
         // given
-        DistributedLock distributedLock = createDistributedLockAnnotation();
-        MethodSignature signature = createMethodSignature();
+        when(multiLock.tryLock(anyLong(), anyLong(), any(TimeUnit.class))).thenReturn(true);
 
-        when(joinPoint.getSignature()).thenReturn(signature);
-        when(redissonClient.getLock(anyString())).thenReturn(rLock);
-        when(redissonClient.getMultiLock(any())).thenReturn(multiLock);
-        when(multiLock.tryLock(anyLong(), anyLong(), any())).thenReturn(false);
+        // when
+        String result = testService.executeWithLock();
+
+        // then
+        InOrder inOrder = inOrder(redissonClient, multiLock);
+        inOrder.verify(redissonClient).getLock(any(String.class));
+        inOrder.verify(multiLock).tryLock(anyLong(), anyLong(), any());
+        inOrder.verify(multiLock).unlock();
+
+        assertThat(result).isEqualTo("success");
+    }
+
+    @Test
+    void 분산락_획득_실패시_예외가_발생한다() throws InterruptedException {
+        // given
+        when(multiLock.tryLock(anyLong(), anyLong(), any(TimeUnit.class))).thenReturn(false);
 
         // when & then
-        assertThatThrownBy(() -> lockAspect.executeWithLock(joinPoint, distributedLock))
+        assertThatThrownBy(() -> testService.executeWithLock())
                 .isInstanceOf(ApiException.class)
                 .hasFieldOrPropertyWithValue("apiErrorCode", LOCK_ACQUISITION_FAILED);
 
         verify(multiLock).tryLock(anyLong(), anyLong(), any());
-        verify(joinPoint, never()).proceed();
         verify(multiLock).unlock();
     }
-
     @Test
-    void 비즈니스로직_실행중_예외발생시_락이_해제되어야한다() throws Throwable {
+    void 비즈니스로직_실행중_예외발생시_락이_해제되어야한다() throws InterruptedException {
         // given
-        DistributedLock distributedLock = createDistributedLockAnnotation();
-        MethodSignature signature = createMethodSignature();
-        RuntimeException expectedException = new RuntimeException("비즈니스 로직 실패");
-
-        when(joinPoint.getSignature()).thenReturn(signature);
-        when(redissonClient.getLock(anyString())).thenReturn(rLock);
-        when(redissonClient.getMultiLock(any())).thenReturn(multiLock);
         when(multiLock.tryLock(anyLong(), anyLong(), any())).thenReturn(true);
-        when(joinPoint.proceed()).thenThrow(expectedException);
 
         // when & then
-        assertThatThrownBy(() -> lockAspect.executeWithLock(joinPoint, distributedLock))
-                .isEqualTo(expectedException);
+        assertThatThrownBy(() -> testService.executeWithException())
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("비즈니스 로직 실패");
 
         verify(multiLock).tryLock(anyLong(), anyLong(), any());
-        verify(joinPoint).proceed();
         verify(multiLock).unlock();
-    }
-
-    private DistributedLock createDistributedLockAnnotation() {
-        return new DistributedLock() {
-            @Override
-            public String key() {
-                return "'test'";
-            }
-
-            @Override
-            public long waitTime() {
-                return 5L;
-            }
-
-            @Override
-            public long leaseTime() {
-                return 3L;
-            }
-
-            @Override
-            public TimeUnit timeUnit() {
-                return TimeUnit.SECONDS;
-            }
-
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return DistributedLock.class;
-            }
-        };
-    }
-
-    private MethodSignature createMethodSignature() {
-        MethodSignature signature = mock(MethodSignature.class);
-        when(signature.getParameterNames()).thenReturn(new String[]{});
-        return signature;
     }
 }
