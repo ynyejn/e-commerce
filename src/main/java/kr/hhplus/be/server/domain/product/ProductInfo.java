@@ -11,4 +11,6 @@ public record ProductInfo(
     public static ProductInfo of(Product product, ProductStock stock) {
         return new ProductInfo(product.getId(), product.getName(), product.getPrice(), stock.getQuantity());
     }
+
+
 }
