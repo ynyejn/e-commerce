@@ -267,6 +267,9 @@ sequenceDiagram
 ## 📚 동시성 보고서
 [동시성 보고서](docs/concurrency_report.md)
 
+## 📦 Redis 적용 보고서
+[Redis 적용 보고서](https://www.notion.so/18e514f33a28809ebe5dcbcc97bb01b6?pvs=4)
+
 ## Getting Started
 
 ### Prerequisites
