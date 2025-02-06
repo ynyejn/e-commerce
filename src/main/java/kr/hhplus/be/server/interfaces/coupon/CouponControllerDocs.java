@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.interfaces.support.response.ResultResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
 
@@ -131,4 +132,81 @@ public interface CouponControllerDocs {
             )
     })
     ResponseEntity<List<CouponResponse>> getMyCoupons(@Parameter(hidden = true) User user);
+
+    @Operation(
+            summary = "쿠폰 발급 요청",
+            description = "인증된 사용자에게 지정된 쿠폰을 발급 요청합니다. 발급 가능한 쿠폰인지 수량과 상태를 확인한 후 발급 요청을 진행합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "쿠폰 발급 요청 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResultResponse.class),
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                                "success": true
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "인증되지 않은 사용자",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                                "code": "UNAUTHORIZED",
+                                                "message": "인증되지 않은 사용자입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "쿠폰을 찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                                "code": "NOT_FOUND",
+                                                "message": "리소스를 찾을 수 없습니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "쿠폰 중복 발급 요청 시도 또는 수량 부족",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                                "code": "CONFLICT",
+                                                "message": "이미 발급된 쿠폰이거나 수량이 부족합니다."
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    ResponseEntity<ResultResponse> requestCouponIssue(
+            @Parameter(hidden = true) User user,
+            @Parameter(
+                    description = "발급 요청할 쿠폰의 ID",
+                    required = true
+            ) Long couponId
+    );
 }

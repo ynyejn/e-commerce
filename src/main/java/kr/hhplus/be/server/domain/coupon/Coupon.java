@@ -79,10 +79,16 @@ public class Coupon extends BaseEntity {
         return couponIssue;
     }
 
-    private void validateIssuable() {
-        // 발급 가능 기간인지 확인
-        LocalDateTime now = LocalDateTime.now();
-        if (now.isBefore(issueStartAt) || now.isAfter(issueEndAt)) {
+    public CouponIssue issueAt(User user, LocalDateTime requestTime) {
+        validateIssuableAt(requestTime);
+        this.issuedQuantity++;
+        CouponIssue couponIssue = CouponIssue.create(user, this);
+        return couponIssue;
+    }
+
+    public void validateIssuableAt(LocalDateTime requestTime) {
+        // 요청 시점이 발급 기간 내인지 확인
+        if (requestTime.isBefore(issueStartAt) || requestTime.isAfter(issueEndAt)) {
             throw new ApiException(INVALID_REQUEST);
         }
 
@@ -90,6 +96,10 @@ public class Coupon extends BaseEntity {
         if (totalIssueQuantity != null && issuedQuantity >= totalIssueQuantity) {
             throw new ApiException(INSUFFICIENT_COUPON);
         }
+    }
+
+    public void validateIssuable() {
+        validateIssuableAt(LocalDateTime.now());
     }
 
     public enum DiscountType {
