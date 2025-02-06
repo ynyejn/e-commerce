@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -18,10 +19,11 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class CouponIssueProcessor {
-    private static final int DEFAULT_BATCH_SIZE = 10000;
+    private static final int DEFAULT_BATCH_SIZE = 10000; // 처리 최대수량..임의로 해뒀는데 이게 맞는지는 모르겠음
     private final ICouponRepository couponRepository;
     private final IUserRepository userRepository;
 
+    @Transactional
     public void processCouponIssuance(Coupon coupon) {
         log.info("processIssuanceForCoupon start: {}", coupon.getId());
         int issuableCount = coupon.getTotalIssueQuantity() == null ? DEFAULT_BATCH_SIZE : coupon.getTotalIssueQuantity() - coupon.getIssuedQuantity();

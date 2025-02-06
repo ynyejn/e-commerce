@@ -20,7 +20,6 @@ public class CouponScheduler {
     private final CouponIssueProcessor couponIssueProcessor;
 
     @Async
-    @Transactional
     @Scheduled(cron = "0 */1 * * * *")
     @SchedulerLock(name = "issueCoupon", lockAtLeastFor = "59s", lockAtMostFor = "59s")
     public void issueCoupon() {
