@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 
 public record PopularProductInfo(
-        Long rank,
         Long productId,
         String name,
         BigDecimal price,

@@ -100,7 +100,7 @@ public class OrderConcurrencyTest {
                     orderFacade.order(criteria);
                     successCount.incrementAndGet();
                 } catch (Exception e) {
-                  e.printStackTrace();
+                    e.printStackTrace();
                     failCount.incrementAndGet();
                 } finally {
                     latch.countDown();

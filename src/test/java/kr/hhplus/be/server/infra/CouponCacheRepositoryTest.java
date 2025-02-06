@@ -35,6 +35,12 @@ class CouponCacheRepositoryTest {
             connection.flushDb();
             return null;
         });
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Test

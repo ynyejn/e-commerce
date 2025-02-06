@@ -46,19 +46,6 @@ class DistributedLockAspectTest {
         testService = factory.getProxy();
     }
 
-
-    static class TestService {
-        @DistributedLock(key = "'test'")
-        public String executeWithLock() {
-            return "success";
-        }
-
-        @DistributedLock(key = "'test'")
-        public String executeWithException() {
-            throw new RuntimeException("비즈니스 로직 실패");
-        }
-    }
-
     @Test
     void 분산락_획득_성공시_정해진_순서대로_실행된다() throws InterruptedException {
         // given
@@ -89,6 +76,7 @@ class DistributedLockAspectTest {
         verify(multiLock).tryLock(anyLong(), anyLong(), any());
         verify(multiLock).unlock();
     }
+
     @Test
     void 비즈니스로직_실행중_예외발생시_락이_해제되어야한다() throws InterruptedException {
         // given
@@ -101,5 +89,17 @@ class DistributedLockAspectTest {
 
         verify(multiLock).tryLock(anyLong(), anyLong(), any());
         verify(multiLock).unlock();
+    }
+
+    static class TestService {
+        @DistributedLock(key = "'test'")
+        public String executeWithLock() {
+            return "success";
+        }
+
+        @DistributedLock(key = "'test'")
+        public String executeWithException() {
+            throw new RuntimeException("비즈니스 로직 실패");
+        }
     }
 }

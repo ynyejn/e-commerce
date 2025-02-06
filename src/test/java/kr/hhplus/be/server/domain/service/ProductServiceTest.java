@@ -19,8 +19,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-
-
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
 
@@ -29,6 +27,9 @@ class ProductServiceTest {
 
     @Mock
     private IOrderRepository orderRepository;
+
+    @Mock
+    private PopularProductCacheManager popularProductCacheManager;
 
     @InjectMocks
     private ProductService productService;
@@ -57,9 +58,6 @@ class ProductServiceTest {
 
     @Test
     void 인기상품이_없으면_빈_리스트가_반환된다() {
-        // given
-        when(orderRepository.findTopFivePopularProducts()).thenReturn(List.of());
-
         // when
         List<PopularProductInfo> result = productService.getTopFivePopularProducts();
 
