@@ -1,9 +1,9 @@
 package kr.hhplus.be.server.domain.product;
 
-import kr.hhplus.be.server.domain.order.IOrderRepository;
 import kr.hhplus.be.server.domain.order.OrderCommand;
 import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -11,16 +11,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductService {
     private final IProductRepository productRepository;
-    private final IOrderRepository orderRepository;
+    private final PopularProductCacheManager popularProductCacheManager;
+
 
     @Transactional(readOnly = true)
     public Page<ProductInfo> getAllProducts(Pageable pageable) {
@@ -42,11 +43,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<PopularProductInfo> getTopFivePopularProducts() {
-        List<PopularProductQuery> productQueries = orderRepository.findTopFivePopularProducts();
-        AtomicLong rank = new AtomicLong(1);
-        return productQueries.stream()
-                .map(query -> query.toInfo(rank.getAndIncrement()))
-                .collect(Collectors.toList());
+        return popularProductCacheManager.getTopProducts(5);
     }
 
     @Transactional(readOnly = true)
@@ -94,4 +91,5 @@ public class ProductService {
 
         productRepository.saveAll(stocks);
     }
+
 }

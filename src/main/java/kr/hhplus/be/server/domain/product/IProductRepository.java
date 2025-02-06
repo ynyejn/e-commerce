@@ -2,9 +2,11 @@ package kr.hhplus.be.server.domain.product;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.ZSetOperations;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface IProductRepository {
     Page<Product> findAll(Pageable pageable);
@@ -32,4 +34,30 @@ public interface IProductRepository {
     Optional<ProductStock> findByProductId(Long productId);
 
     List<ProductStock> findAllByProductIds(List<Long> productIds);
+
+    void addToTempKeys(List<PopularProductQuery> products);
+
+    String getCurrentSortedKey();
+
+    void moveKeys(String oldSortedKey, String newSortedKey, String oldHashKey, String newHashKey);
+
+    void deleteKeys(String... keys);
+
+    boolean existsKey(String key);
+
+    String getTempSortedKey();
+
+    String getBackupSortedKey();
+
+    String getTempHashKey();
+
+    String getCurrentHashKey();
+
+    String getBackupHashKey();
+
+    List<String> getProductHashValues(String hashKey, List<String> productIds);
+
+    Set<ZSetOperations.TypedTuple<Long>> getTopProductIds(String sortedKey, int limit);
+
+
 }

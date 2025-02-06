@@ -65,6 +65,8 @@ dependencies {
 
     // redisson
     implementation("org.redisson:redisson-spring-boot-starter:3.27.1")
+    // Jackson
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
 
 
 }
