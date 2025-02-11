@@ -38,4 +38,6 @@ public interface ICouponRepository {
     int getIssuedCount(Long id);
 
     int getFailedCount(Long id);
+
+    void saveAll(List<Coupon> couponList);
 }

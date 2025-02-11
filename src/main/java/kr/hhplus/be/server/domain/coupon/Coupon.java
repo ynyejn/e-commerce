@@ -6,6 +6,7 @@ import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.support.exception.ApiException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Getter
 @Table(name = "coupon")
 @NoArgsConstructor(access = PROTECTED)
+@DynamicUpdate
 public class Coupon extends BaseEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -79,11 +81,9 @@ public class Coupon extends BaseEntity {
         return couponIssue;
     }
 
-    public CouponIssue issueAt(User user, LocalDateTime requestTime) {
+    public void issueAt(LocalDateTime requestTime) {
         validateIssuableAt(requestTime);
         this.issuedQuantity++;
-        CouponIssue couponIssue = CouponIssue.create(user, this);
-        return couponIssue;
     }
 
     public void validateIssuableAt(LocalDateTime requestTime) {

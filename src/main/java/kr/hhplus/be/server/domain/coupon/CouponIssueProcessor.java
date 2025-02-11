@@ -1,12 +1,12 @@
 package kr.hhplus.be.server.domain.coupon;
 
+import jakarta.transaction.Transactional;
 import kr.hhplus.be.server.domain.user.IUserRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -19,7 +19,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class CouponIssueProcessor {
-    private static final int DEFAULT_BATCH_SIZE = 10000; // 처리 최대수량..임의로 해뒀는데 이게 맞는지는 모르겠음
+    private static final int DEFAULT_BATCH_SIZE = 10000;
     private final ICouponRepository couponRepository;
     private final IUserRepository userRepository;
 
@@ -44,11 +44,13 @@ public class CouponIssueProcessor {
 
     private IssuanceResult processRequests(Coupon coupon, Set<ZSetOperations.TypedTuple<Long>> requests) {
         IssuanceResult result = new IssuanceResult();
+        List<Coupon> couponList = new ArrayList<>();
 
         requests.forEach(request ->
                 userRepository.findById(request.getValue()).ifPresent(user -> {
                     try {
-                        coupon.issueAt(user, convertToLocalDateTime(request.getScore()));
+                        coupon.issueAt(convertToLocalDateTime(request.getScore()));
+                        couponList.add(coupon);
                         result.addSuccess(user.getId());
                     } catch (Exception e) {
                         log.error("Failed to issue coupon for user: {}", user.getId(), e);
@@ -57,6 +59,7 @@ public class CouponIssueProcessor {
                 })
         );
 
+        couponRepository.saveAll(couponList);
         return result;
     }
 

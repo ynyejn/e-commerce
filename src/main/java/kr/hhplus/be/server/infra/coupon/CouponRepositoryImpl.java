@@ -20,6 +20,11 @@ public class CouponRepositoryImpl implements ICouponRepository {
     private final CouponIssueJpaRepository couponIssueJpaRepository;
     private final CouponCacheRepository couponCacheRepository;
 
+
+    @Override
+    public void saveAll(List<Coupon> couponList) {
+        couponJpaRepository.saveAll(couponList);
+    }
     @Override
     public Optional<Coupon> findById(Long id) {
         return couponJpaRepository.findById(id);
