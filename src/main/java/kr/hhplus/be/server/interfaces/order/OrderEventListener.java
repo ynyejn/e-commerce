@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.interfaces.order;
 
-import kr.hhplus.be.server.domain.order.OrderConfirmedEvent;
+import kr.hhplus.be.server.domain.order.OrderCompletedEvent;
 import kr.hhplus.be.server.infra.dataplatform.DataPlatformClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ public class OrderEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleOrderConfirmedEvent(OrderConfirmedEvent event) {
+    public void handleOrderCompletedEvent(OrderCompletedEvent event) {
         log.info("Send to data platform - event: {}", event);
         dataPlatformClient.send(event.toString());
     }

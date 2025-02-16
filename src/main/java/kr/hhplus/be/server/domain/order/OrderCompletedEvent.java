@@ -3,15 +3,15 @@ package kr.hhplus.be.server.domain.order;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record OrderConfirmedEvent(
+public record OrderCompletedEvent(
         Long orderId,
         Long userId,
         Long paymentId,
         BigDecimal amount,
         LocalDateTime paidAt
 ) {
-    public static OrderConfirmedEvent from(Order order) {
-        return new OrderConfirmedEvent(
+    public static OrderCompletedEvent from(Order order) {
+        return new OrderCompletedEvent(
                 order.getId(),
                 order.getUser().getId(),
                 order.getId(),
