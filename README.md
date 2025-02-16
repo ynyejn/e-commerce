@@ -270,6 +270,12 @@ sequenceDiagram
 ## 📦 Redis 적용 보고서
 [Redis 적용 보고서](https://www.notion.so/18e514f33a28809ebe5dcbcc97bb01b6?pvs=4)
 
+## 📑 Index 적용 보고서
+[Index 적용 보고서](https://www.notion.so/199514f33a28802480f2d257a2de0fca?pvs=4)
+
+## ✨ 분산 트랜잭션 보고서
+[분산 트랜잭션 보고서](https://www.notion.so/198514f33a28805c805dc2ade20cc239?pvs=4)
+
 ## Getting Started
 
 ### Prerequisites
