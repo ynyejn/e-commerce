@@ -14,11 +14,15 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static kr.hhplus.be.server.domain.order.Order.OrderStatus.PAID;
+import static kr.hhplus.be.server.domain.order.OrderOutbox.OutboxStatus.INIT;
+import static kr.hhplus.be.server.domain.order.OrderOutbox.OutboxStatus.PUBLISHED;
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
 
 @SpringBootTest
 @Sql(scripts = {"/cleanup.sql", "/test-data.sql"})
@@ -119,7 +123,15 @@ class OrderServiceIntegrationTest {
 
         assertThat(savedOutbox.getEventType()).isEqualTo("OrderCompletedEvent");
         assertThat(savedOutbox.getOrderId()).isEqualTo(confirmedOrder.orderId());
-        assertThat(savedOutbox.getPublishedAt()).isNull(); // 아직 발행되지 않은 상태
+        assertThat(savedOutbox.getStatus()).isEqualTo(INIT); // 아직 발행되지 않은 상태
+
+        // 3. kafka 이벤트 발행 확인
+        await()
+                .atMost(3, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    OrderOutbox updatedOutbox = orderOutBoxRepository.findByOrderId(confirmedOrder.orderId()).get();
+                    assertThat(updatedOutbox.getStatus()).isEqualTo(PUBLISHED); // 발행된 상태
+                });
     }
 
     @Test
