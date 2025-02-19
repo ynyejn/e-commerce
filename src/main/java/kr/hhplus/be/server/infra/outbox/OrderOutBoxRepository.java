@@ -3,10 +3,12 @@ package kr.hhplus.be.server.infra.outbox;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.domain.order.OrderOutbox;
+import kr.hhplus.be.server.domain.order.OrderOutbox.OutboxStatus;
 import kr.hhplus.be.server.domain.support.DomainEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -31,5 +33,13 @@ public class OrderOutBoxRepository {
 
     public Optional<OrderOutbox> findByOrderId(Long orderId) {
         return orderOutBoxJpaRepository.findByOrderId(orderId);
+    }
+
+    public List<OrderOutbox> findUnpublishedEvents(String eventType) {
+        return orderOutBoxJpaRepository.findAllByEventTypeAndStatus(eventType, OutboxStatus.INIT);
+    }
+
+    public void saveAll(List<OrderOutbox> outboxList) {
+        orderOutBoxJpaRepository.saveAll(outboxList);
     }
 }

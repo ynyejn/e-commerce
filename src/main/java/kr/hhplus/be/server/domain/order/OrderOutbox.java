@@ -10,37 +10,56 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static kr.hhplus.be.server.domain.order.OrderOutbox.OutboxStatus.INIT;
+import static kr.hhplus.be.server.domain.order.OrderOutbox.OutboxStatus.PUBLISHED;
 
 @Entity
 @Table(name = "order_outbox")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderOutbox extends BaseEntity {
-   @Id
-   @GeneratedValue(strategy = IDENTITY)
-   private Long id;
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
+    private Long id;
 
-   @Column(name = "order_id")
-   private Long orderId;
+    @Column(name = "order_id")
+    private Long orderId;
 
-   @Column(name = "event_type")
-   private String eventType;
+    @Column(name = "event_type")
+    private String eventType;
 
-   @Column(columnDefinition = "json")
-   private String payload;
+    @Column(columnDefinition = "json")
+    private String payload;
 
-   @Column(name = "published_at")
-   private LocalDateTime publishedAt;
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private OutboxStatus status;
 
-   @Builder
-   public OrderOutbox(Long orderId, String eventType, String payload) {
-       this.orderId = orderId;
-       this.eventType = eventType;
-       this.payload = payload;
-       this.publishedAt = null;
-   }
+    @Column(name = "retry_count")
+    private int retryCount;
 
-   public void markAsPublished() {
-       this.publishedAt = LocalDateTime.now();
-   }
+    @Column(name = "last_retry_time")
+    private LocalDateTime lastRetryTime;
+
+    public enum OutboxStatus {
+        INIT, PUBLISHED
+    }
+
+    @Builder
+    public OrderOutbox(Long orderId, String eventType, String payload) {
+        this.orderId = orderId;
+        this.eventType = eventType;
+        this.payload = payload;
+        this.status = INIT;
+        this.retryCount = 0;
+    }
+
+    public void published() {
+        this.status = PUBLISHED;
+    }
+
+    public void incrementRetryCount() {
+        this.retryCount++;
+        this.lastRetryTime = LocalDateTime.now();
+    }
 }
