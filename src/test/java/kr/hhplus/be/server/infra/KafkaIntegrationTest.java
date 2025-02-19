@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.infra;
 
-import kr.hhplus.be.server.infra.kafka.KafkaPublisher;
+import kr.hhplus.be.server.infra.test.KafkaPublisher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
