@@ -3,7 +3,7 @@ package kr.hhplus.be.server.interfaces.order;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import kr.hhplus.be.server.domain.order.OrderCompletedEvent;
+import kr.hhplus.be.server.domain.order.OrderEvent;
 import kr.hhplus.be.server.infra.outbox.OrderOutboxJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class OrderEventConsumer {
     @Transactional
     public void consumeOrderCompleted(String message) {
         try {
-            OrderCompletedEvent event = objectMapper.readValue(message, OrderCompletedEvent.class);
+            OrderEvent.Completed event = objectMapper.readValue(message, OrderEvent.Completed.class);
             Long orderId = event.entityId();
             orderOutboxJpaRepository.findByOrderId(orderId).get().published();
 

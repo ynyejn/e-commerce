@@ -121,7 +121,7 @@ class OrderServiceIntegrationTest {
         OrderOutbox savedOutbox = orderOutBoxRepository.findByOrderId(confirmedOrder.orderId())
                 .orElseThrow(() -> new RuntimeException("Outbox에 이벤트가 저장되지 않았습니다."));
 
-        assertThat(savedOutbox.getEventType()).isEqualTo("OrderCompletedEvent");
+        assertThat(savedOutbox.getEventType()).isEqualTo("Completed");
         assertThat(savedOutbox.getOrderId()).isEqualTo(confirmedOrder.orderId());
         assertThat(savedOutbox.getStatus()).isEqualTo(INIT); // 아직 발행되지 않은 상태
 

@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.interfaces.order;
 
-import kr.hhplus.be.server.domain.order.OrderCompletedEvent;
-import kr.hhplus.be.server.infra.kafka.KafkaPublisher;
+import kr.hhplus.be.server.domain.order.OrderEvent;
 import kr.hhplus.be.server.infra.order.OrderEventPublisher;
 import kr.hhplus.be.server.infra.outbox.OrderOutBoxRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +18,13 @@ public class OrderEventListener {
     private final OrderOutBoxRepository orderOutboxRepository;
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
-    public void saveToOutbox(OrderCompletedEvent event) {
+    public void saveToOutbox(OrderEvent.Completed event) {
         orderOutboxRepository.save(event);
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleOrderCompletedEvent(OrderCompletedEvent event) {
+    public void handleOrderCompletedEvent(OrderEvent.Completed event) {
         eventPublisher.publish("order-completed", event);
     }
 }

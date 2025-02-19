@@ -15,11 +15,14 @@ public class OrderEventPublisher {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
+    public void publish(String topic, String message) {
+        kafkaTemplate.send(topic, message);
+    }
+
     public void publish(String topic, DomainEvent event) {
         try {
             String message = objectMapper.writeValueAsString(event);
             kafkaTemplate.send(topic, message);
-            log.info("메시지 발행: {}", message);
         } catch (JsonProcessingException e) {
             log.error("메시지 발행 실패: Json 변환 실패: {}", event, e);
         } catch (Exception e) {

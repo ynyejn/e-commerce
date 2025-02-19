@@ -2,7 +2,7 @@ package kr.hhplus.be.server.interfaces.order;
 
 import jakarta.transaction.Transactional;
 import kr.hhplus.be.server.domain.order.OrderOutbox;
-import kr.hhplus.be.server.infra.kafka.KafkaPublisher;
+import kr.hhplus.be.server.infra.order.OrderEventPublisher;
 import kr.hhplus.be.server.infra.outbox.OrderOutBoxRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,18 +17,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderScheduler {
     private final OrderOutBoxRepository orderOutBoxRepository;
-    private final KafkaPublisher kafkaPublisher;
+    private final OrderEventPublisher eventPublisher;
 
     @Scheduled(fixedDelay = 60000)
     @Transactional
     public void republishUnpublishedEvents() {
         List<OrderOutbox> failedEvents = new ArrayList<>();
         try {
-            List<OrderOutbox> unpublishedEvents = orderOutBoxRepository.findUnpublishedEvents("OrderCompletedEvent");
+            List<OrderOutbox> unpublishedEvents = orderOutBoxRepository.findUnpublishedEvents("Completed");
 
             for (OrderOutbox event : unpublishedEvents) {
                 try {
-                    kafkaPublisher.publish("order-completed", event.getPayload());
+                    eventPublisher.publish("order-completed", event.getPayload());
                 } catch (Exception e) {
                     event.incrementRetryCount();
                     failedEvents.add(event);

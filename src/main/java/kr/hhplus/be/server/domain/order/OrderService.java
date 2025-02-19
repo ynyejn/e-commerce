@@ -32,7 +32,7 @@ public class OrderService {
     public OrderInfo confirm(OrderCommand.Confirm command) {
         Order order = orderRepository.findById(command.orderId()).orElseThrow(() -> new ApiException(NOT_FOUND));
         order.confirm();
-        eventPublisher.publishEvent(OrderCompletedEvent.from(order));
+        eventPublisher.publishEvent(OrderEvent.Completed.from(order));
         return OrderInfo.from(order);
     }
 
