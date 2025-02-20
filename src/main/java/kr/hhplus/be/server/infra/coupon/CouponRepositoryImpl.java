@@ -25,6 +25,12 @@ public class CouponRepositoryImpl implements ICouponRepository {
     public void saveAll(List<Coupon> couponList) {
         couponJpaRepository.saveAll(couponList);
     }
+
+    @Override
+    public void saveAllCouponissues(List<CouponIssue> couponList) {
+        couponIssueJpaRepository.saveAll(couponList);
+    }
+
     @Override
     public Optional<Coupon> findById(Long id) {
         return couponJpaRepository.findById(id);
@@ -91,8 +97,13 @@ public class CouponRepositoryImpl implements ICouponRepository {
     }
 
     @Override
-    public void addIssuance(Long id, List<Long> successfulUserIds) {
-        couponCacheRepository.addIssuance(id, successfulUserIds);
+    public void addIssuedCoupon(Long id, List<Long> successfulUserIds) {
+        couponCacheRepository.addIssuedCoupon(id, successfulUserIds);
+    }
+
+    @Override
+    public void addIssuedCoupon(Long id, Long userId) {
+        couponCacheRepository.addIssuedCoupon(id, userId);
     }
 
     @Override
