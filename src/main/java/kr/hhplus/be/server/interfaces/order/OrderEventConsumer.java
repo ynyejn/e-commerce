@@ -17,7 +17,7 @@ public class OrderEventConsumer {
     private final OrderOutboxJpaRepository orderOutboxJpaRepository;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "order-completed", groupId = "test-group")
+    @KafkaListener(topics = "order-completed", groupId = "order-group")
     @Transactional
     public void consumeOrderCompleted(String message) {
         try {
