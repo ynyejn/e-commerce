@@ -46,10 +46,7 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       properties:
-        min.insync.replicas: 2    # 최소 동기화 복제본 수
         replication.factor: 3     # 복제본 수
-        max.in.flight.requests.per.connection: 1  # 동시 요청 수
-        enable.idempotence: true
 springdoc:
   api-docs:
     enabled: true
