@@ -68,6 +68,10 @@ dependencies {
     // Jackson
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
 
+    // kafka
+    implementation("org.springframework.kafka:spring-kafka")
+    testImplementation("org.testcontainers:kafka:1.19.3")
+
 
 }
 
