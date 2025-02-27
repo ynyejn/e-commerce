@@ -5,6 +5,7 @@ import kr.hhplus.be.server.domain.product.IProductRepository;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.user.IUserRepository;
 import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.infra.outbox.OrderOutBoxRepository;
 import kr.hhplus.be.server.support.exception.ApiException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,15 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import static kr.hhplus.be.server.domain.order.Order.OrderStatus.PAID;
+import static kr.hhplus.be.server.domain.order.OrderOutbox.OutboxStatus.INIT;
+import static kr.hhplus.be.server.domain.order.OrderOutbox.OutboxStatus.PUBLISHED;
 import static kr.hhplus.be.server.support.exception.ApiErrorCode.NOT_FOUND;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
 
 @SpringBootTest
 @Sql(scripts = {"/cleanup.sql", "/test-data.sql"})
@@ -33,6 +39,9 @@ class OrderServiceIntegrationTest {
 
     @Autowired
     private IProductRepository productRepository;
+
+    @Autowired
+    private OrderOutBoxRepository orderOutBoxRepository;
 
     @Test
     void 주문_생성시_주문정보가_정상적으로_생성된다() {
@@ -100,12 +109,29 @@ class OrderServiceIntegrationTest {
         );
 
         // then
+        // 1. 주문 상태가 변경되었는지 확인
         assertThat(confirmedOrder).isNotNull();
         assertThat(confirmedOrder.status()).isEqualTo("결제 완료");
 
         Order savedOrder = orderRepository.findById(confirmedOrder.orderId())
                 .orElseThrow(() -> new RuntimeException("주문이 존재하지 않습니다."));
-        assertThat(savedOrder.getStatus()).isEqualTo(kr.hhplus.be.server.domain.order.Order.OrderStatus.PAID);
+        assertThat(savedOrder.getStatus()).isEqualTo(PAID);
+
+        // 2. Outbox 저장 확인
+        OrderOutbox savedOutbox = orderOutBoxRepository.findByOrderId(confirmedOrder.orderId())
+                .orElseThrow(() -> new RuntimeException("Outbox에 이벤트가 저장되지 않았습니다."));
+
+        assertThat(savedOutbox.getEventType()).isEqualTo("Completed");
+        assertThat(savedOutbox.getOrderId()).isEqualTo(confirmedOrder.orderId());
+        assertThat(savedOutbox.getStatus()).isEqualTo(INIT); // 아직 발행되지 않은 상태
+
+        // 3. kafka 이벤트 발행 확인
+        await()
+                .atMost(3, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    OrderOutbox updatedOutbox = orderOutBoxRepository.findByOrderId(confirmedOrder.orderId()).get();
+                    assertThat(updatedOutbox.getStatus()).isEqualTo(PUBLISHED); // 발행된 상태
+                });
     }
 
     @Test

@@ -96,7 +96,7 @@ class CouponCacheRepositoryTest {
         List<Long> userIds = Arrays.asList(1L, 2L, 3L);
 
         // when
-        couponCacheRepository.addIssuance(couponId, userIds);
+        couponCacheRepository.addIssuedCoupon(couponId, userIds);
 
         // then
         assertThat(couponCacheRepository.getIssuedCount(couponId)).isEqualTo(3);
@@ -143,7 +143,7 @@ class CouponCacheRepositoryTest {
 
         // when & then
         assertThatCode(() -> {
-            couponCacheRepository.addIssuance(couponId, emptyList);
+            couponCacheRepository.addIssuedCoupon(couponId, emptyList);
             couponCacheRepository.addFailures(couponId, emptyList);
         }).doesNotThrowAnyException();
     }
