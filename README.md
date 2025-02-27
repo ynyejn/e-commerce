@@ -276,6 +276,9 @@ sequenceDiagram
 ## ✨ 분산 트랜잭션 보고서
 [분산 트랜잭션 보고서](https://www.notion.so/198514f33a28805c805dc2ade20cc239?pvs=4)
 
+## 📈️ 부하 테스트 보고서
+[부하 테스트 보고서](https://www.notion.so/1a5514f33a288061ab5ad21cf32811fc?pvs=4)
+
 ## Getting Started
 
 ### Prerequisites
